@@ -1,36 +1,76 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SiteGent
 
-## Getting Started
+SiteGent is an AI-native operations manager for South African contractors and field-service businesses that still run on WhatsApp, voice notes, paper, and spreadsheets.
 
-First, run the development server:
+The MVP wedge is intentionally narrow:
+
+1. Paste a messy customer request or voice-note transcript.
+2. AI extracts the job details.
+3. SiteGent creates a job card, quote, PDF-ready document, invoice, and follow-up message.
+
+## Stack
+
+- Next.js App Router
+- Tailwind CSS
+- Supabase Auth, Postgres, and Storage
+- OpenAI API
+- Browser print/PDF route for first document generation pass
+
+## Local Setup
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Create `.env.local`:
 
-## Learn More
+```bash
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+SITEGENT_DEMO_COMPANY_ID=
+OPENAI_API_KEY=
+OPENAI_MODEL=gpt-5.4-mini
+```
 
-To learn more about Next.js, take a look at the following resources:
+Without `OPENAI_API_KEY`, the app runs in demo mode with a deterministic extractor so pilots and UI demos still work.
+Without `NEXT_PUBLIC_SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`, saving stays in demo mode and shows: `Demo mode: Supabase is not connected yet.`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+`SITEGENT_DEMO_COMPANY_ID` is optional. If omitted, the save route uses the first company in Supabase or creates `Mokoena Build & Maintenance`.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Database
 
-## Deploy on Vercel
+Run [supabase-schema.sql](/C:/Users/Kgotso%20Powell/Desktop/SiteGent/supabase-schema.sql) in Supabase SQL editor. It includes the MVP tables and company-level row security policies:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- users
+- companies
+- customers
+- workers
+- jobs
+- quotes
+- quote_items
+- invoices
+- messages
+- payments
+- ai_tasks
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Routes
+
+- `/` - SiteGent MVP app shell
+- `/api/ai/extract` - Extract job JSON from a pasted WhatsApp message
+- `/api/operations/save` - Save the generated operations pack to Supabase
+- `/api/saved-jobs` - Read saved Supabase jobs for the dashboard
+- `/api/documents/quote?id=quote-1` - PDF-ready quote
+- `/api/documents/invoice?id=invoice-1` - PDF-ready invoice
+
+## Next Production Steps
+
+- Add Supabase Auth screens and protected route checks.
+- Move server-side demo persistence behind authenticated company sessions.
+- Generate true PDFs with Playwright or a server document worker and upload them to Supabase Storage.
+- Add WhatsApp Business API once the simulated inbox workflow wins with pilot users.
