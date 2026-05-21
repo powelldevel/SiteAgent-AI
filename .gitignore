@@ -23,6 +23,8 @@
 # misc
 .DS_Store
 *.pem
+github-profile/
+linkedin-profile.md
 
 # debug
 npm-debug.log*
