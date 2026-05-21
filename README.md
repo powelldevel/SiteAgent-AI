@@ -1,33 +1,58 @@
 # SiteGent
 
-SiteGent is an AI-native operations manager for South African contractors and field-service businesses that still run on WhatsApp, voice notes, paper, and spreadsheets.
+SiteGent is a WhatsApp-first AI ops app for South African contractors. It turns messy customer messages into job cards, ZAR quote drafts, invoice drafts, and follow-up messages.
 
-The MVP wedge is intentionally narrow:
+![SiteGent app preview](docs/sitegent-preview.svg)
 
-1. Paste a messy customer request or voice-note transcript.
-2. AI extracts the job details.
-3. SiteGent creates a job card, quote, PDF-ready document, invoice, and follow-up message.
+## Live Links
 
-## Stack
+- Repo: <https://github.com/powelldevel/SiteAgent-AI>
+- Live demo: add deployment URL here after Vercel/Netlify setup
+- Local: `http://localhost:3000`
 
-- Next.js App Router
-- Tailwind CSS
-- Supabase Auth, Postgres, and Storage
-- OpenAI API
-- Browser print/PDF route for first document generation pass
-
-## Local Setup
+## Try It
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open `http://localhost:3000`.
+Open `http://localhost:3000`, click **Demo Mode**, then run extraction in **AI Inbox**.
+
+No API keys are required for the demo flow. Without `OPENAI_API_KEY`, SiteGent uses a deterministic demo extractor. Without Supabase keys, saving stays in demo mode.
+
+## What It Shows
+
+- AI-style WhatsApp job intake
+- Job card generation
+- Quote draft with VAT and ZAR totals
+- Invoice draft and print-ready document routes
+- Optional Supabase persistence for saved jobs
+
+## Architecture
+
+![SiteGent architecture diagram](docs/architecture.svg)
+
+More detail:
+
+- [Architecture](docs/ARCHITECTURE.md)
+- [API](docs/API.md)
+- [Setup](docs/SETUP.md)
+- [Screenshots](docs/SCREENSHOTS.md)
+- [Supabase schema](supabase-schema.sql)
+
+## Stack
+
+- Next.js 16 App Router
+- React 19
+- Tailwind CSS 4
+- Supabase
+- OpenAI Responses API
+- Zod
 
 ## Environment
 
-Create `.env.local`:
+Create `.env.local` only when you want live AI or Supabase persistence:
 
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=
@@ -38,39 +63,6 @@ OPENAI_API_KEY=
 OPENAI_MODEL=gpt-5.4-mini
 ```
 
-Without `OPENAI_API_KEY`, the app runs in demo mode with a deterministic extractor so pilots and UI demos still work.
-Without `NEXT_PUBLIC_SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`, saving stays in demo mode and shows: `Demo mode: Supabase is not connected yet.`
+## Status
 
-`SITEGENT_DEMO_COMPANY_ID` is optional. If omitted, the save route uses the first company in Supabase or creates `Mokoena Build & Maintenance`.
-
-## Database
-
-Run [supabase-schema.sql](/C:/Users/Kgotso%20Powell/Desktop/SiteGent/supabase-schema.sql) in Supabase SQL editor. It includes the MVP tables and company-level row security policies:
-
-- users
-- companies
-- customers
-- workers
-- jobs
-- quotes
-- quote_items
-- invoices
-- messages
-- payments
-- ai_tasks
-
-## Routes
-
-- `/` - SiteGent MVP app shell
-- `/api/ai/extract` - Extract job JSON from a pasted WhatsApp message
-- `/api/operations/save` - Save the generated operations pack to Supabase
-- `/api/saved-jobs` - Read saved Supabase jobs for the dashboard
-- `/api/documents/quote?id=quote-1` - PDF-ready quote
-- `/api/documents/invoice?id=invoice-1` - PDF-ready invoice
-
-## Next Production Steps
-
-- Add Supabase Auth screens and protected route checks.
-- Move server-side demo persistence behind authenticated company sessions.
-- Generate true PDFs with Playwright or a server document worker and upload them to Supabase Storage.
-- Add WhatsApp Business API once the simulated inbox workflow wins with pilot users.
+MVP/demo-ready. Before real customer data, add authenticated tenant checks to the API routes and tighten RLS coverage for all tables.

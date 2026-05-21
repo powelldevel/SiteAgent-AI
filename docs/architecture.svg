@@ -1,0 +1,58 @@
+<svg width="1280" height="760" viewBox="0 0 1280 760" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">SiteGent architecture diagram</title>
+  <desc id="desc">Architecture diagram showing the browser app, Next.js route handlers, OpenAI, Supabase, and document export routes.</desc>
+  <rect width="1280" height="760" fill="#f6f3ed"/>
+  <text x="70" y="86" fill="#101814" font-family="Arial, sans-serif" font-size="42" font-weight="900">SiteGent Architecture</text>
+  <text x="70" y="124" fill="#516158" font-family="Arial, sans-serif" font-size="18">WhatsApp message intake to job, quote, invoice, and persistence.</text>
+
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M2 2L10 6L2 10V2Z" fill="#158052"/>
+    </marker>
+  </defs>
+
+  <rect x="70" y="190" width="250" height="150" rx="12" fill="#ffffff" stroke="#ded7ca" stroke-width="2"/>
+  <text x="96" y="232" fill="#101814" font-family="Arial, sans-serif" font-size="22" font-weight="900">Browser App</text>
+  <text x="96" y="266" fill="#516158" font-family="Arial, sans-serif" font-size="16">Dashboard</text>
+  <text x="96" y="292" fill="#516158" font-family="Arial, sans-serif" font-size="16">AI Inbox</text>
+  <text x="96" y="318" fill="#516158" font-family="Arial, sans-serif" font-size="16">Quote and invoice views</text>
+
+  <rect x="470" y="170" width="330" height="210" rx="12" fill="#101814" stroke="#19362a" stroke-width="2"/>
+  <text x="500" y="215" fill="#ffffff" font-family="Arial, sans-serif" font-size="24" font-weight="900">Next.js App Router</text>
+  <rect x="500" y="242" width="270" height="34" rx="6" fill="#1f3329"/>
+  <text x="518" y="265" fill="#c9d8d0" font-family="Arial, sans-serif" font-size="15">/api/ai/extract</text>
+  <rect x="500" y="288" width="270" height="34" rx="6" fill="#1f3329"/>
+  <text x="518" y="311" fill="#c9d8d0" font-family="Arial, sans-serif" font-size="15">/api/operations/save</text>
+  <rect x="500" y="334" width="270" height="34" rx="6" fill="#1f3329"/>
+  <text x="518" y="357" fill="#c9d8d0" font-family="Arial, sans-serif" font-size="15">/api/documents/[type]</text>
+
+  <rect x="960" y="160" width="250" height="130" rx="12" fill="#ffffff" stroke="#ded7ca" stroke-width="2"/>
+  <text x="986" y="202" fill="#101814" font-family="Arial, sans-serif" font-size="22" font-weight="900">OpenAI</text>
+  <text x="986" y="236" fill="#516158" font-family="Arial, sans-serif" font-size="16">Structured extraction</text>
+  <text x="986" y="262" fill="#516158" font-family="Arial, sans-serif" font-size="16">Demo fallback if absent</text>
+
+  <rect x="960" y="400" width="250" height="180" rx="12" fill="#ffffff" stroke="#ded7ca" stroke-width="2"/>
+  <text x="986" y="442" fill="#101814" font-family="Arial, sans-serif" font-size="22" font-weight="900">Supabase</text>
+  <text x="986" y="476" fill="#516158" font-family="Arial, sans-serif" font-size="16">Companies</text>
+  <text x="986" y="502" fill="#516158" font-family="Arial, sans-serif" font-size="16">Customers and jobs</text>
+  <text x="986" y="528" fill="#516158" font-family="Arial, sans-serif" font-size="16">Quotes and invoices</text>
+  <text x="986" y="554" fill="#516158" font-family="Arial, sans-serif" font-size="16">AI audit tasks</text>
+
+  <rect x="470" y="480" width="330" height="120" rx="12" fill="#ffffff" stroke="#ded7ca" stroke-width="2"/>
+  <text x="500" y="524" fill="#101814" font-family="Arial, sans-serif" font-size="22" font-weight="900">Document Routes</text>
+  <text x="500" y="558" fill="#516158" font-family="Arial, sans-serif" font-size="16">Print-ready quote HTML</text>
+  <text x="500" y="584" fill="#516158" font-family="Arial, sans-serif" font-size="16">Print-ready invoice HTML</text>
+
+  <line x1="320" y1="265" x2="460" y2="265" stroke="#158052" stroke-width="4" marker-end="url(#arrow)"/>
+  <text x="344" y="244" fill="#12623f" font-family="Arial, sans-serif" font-size="14" font-weight="800">fetch</text>
+  <line x1="800" y1="250" x2="950" y2="224" stroke="#158052" stroke-width="4" marker-end="url(#arrow)"/>
+  <text x="838" y="214" fill="#12623f" font-family="Arial, sans-serif" font-size="14" font-weight="800">AI request</text>
+  <line x1="800" y1="330" x2="950" y2="470" stroke="#158052" stroke-width="4" marker-end="url(#arrow)"/>
+  <text x="832" y="392" fill="#12623f" font-family="Arial, sans-serif" font-size="14" font-weight="800">save/read</text>
+  <line x1="635" y1="380" x2="635" y2="470" stroke="#158052" stroke-width="4" marker-end="url(#arrow)"/>
+  <text x="650" y="433" fill="#12623f" font-family="Arial, sans-serif" font-size="14" font-weight="800">export</text>
+
+  <rect x="70" y="500" width="250" height="100" rx="12" fill="#e6b84b"/>
+  <text x="96" y="542" fill="#101814" font-family="Arial, sans-serif" font-size="22" font-weight="900">Demo Mode</text>
+  <text x="96" y="574" fill="#3a3320" font-family="Arial, sans-serif" font-size="16">Runs without API keys</text>
+</svg>

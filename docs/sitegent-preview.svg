@@ -1,0 +1,63 @@
+<svg width="1280" height="760" viewBox="0 0 1280 760" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">SiteGent app preview</title>
+  <desc id="desc">A preview of the SiteGent dashboard, AI inbox, quote draft, and saved jobs interface.</desc>
+  <rect width="1280" height="760" fill="#f6f3ed"/>
+  <rect x="38" y="38" width="1204" height="684" rx="18" fill="#fffdf8" stroke="#ded7ca" stroke-width="2"/>
+  <rect x="38" y="38" width="252" height="684" rx="18" fill="#101814"/>
+  <rect x="38" y="38" width="252" height="684" rx="18" stroke="#19362a" stroke-width="2"/>
+  <rect x="70" y="76" width="48" height="48" rx="8" fill="#158052"/>
+  <path d="M88 98h12v-8h8v8h12v7H88v-7Zm3 10h26v14H91v-14Z" fill="#fffdf8"/>
+  <text x="132" y="99" fill="#fffdf8" font-family="Arial, sans-serif" font-size="26" font-weight="800">SiteGent</text>
+  <text x="132" y="121" fill="#9fb4aa" font-family="Arial, sans-serif" font-size="13" font-weight="700">AI contractor ops</text>
+  <g font-family="Arial, sans-serif" font-size="16" font-weight="700">
+    <rect x="70" y="174" width="184" height="42" rx="7" fill="#fffdf8"/>
+    <text x="112" y="201" fill="#101814">Dashboard</text>
+    <rect x="70" y="230" width="184" height="42" rx="7" fill="#1d2b24"/>
+    <text x="112" y="257" fill="#c9d8d0">AI Inbox</text>
+    <rect x="70" y="286" width="184" height="42" rx="7" fill="#1d2b24"/>
+    <text x="112" y="313" fill="#c9d8d0">Jobs</text>
+    <rect x="70" y="342" width="184" height="42" rx="7" fill="#1d2b24"/>
+    <text x="112" y="369" fill="#c9d8d0">Quotes</text>
+    <rect x="70" y="398" width="184" height="42" rx="7" fill="#1d2b24"/>
+    <text x="112" y="425" fill="#c9d8d0">Invoices</text>
+  </g>
+  <rect x="70" y="570" width="184" height="86" rx="8" fill="#e6b84b"/>
+  <text x="94" y="608" fill="#101814" font-family="Arial, sans-serif" font-size="18" font-weight="900">Founder demo</text>
+  <text x="94" y="633" fill="#3a3320" font-family="Arial, sans-serif" font-size="13" font-weight="700">Message to invoice flow</text>
+  <rect x="326" y="78" width="858" height="160" rx="10" fill="#101814"/>
+  <text x="356" y="127" fill="#9fe4bd" font-family="Arial, sans-serif" font-size="15" font-weight="800">WhatsApp-first AI ops</text>
+  <text x="356" y="169" fill="#fffdf8" font-family="Arial, sans-serif" font-size="38" font-weight="900">From messy message to quote and invoice.</text>
+  <text x="356" y="204" fill="#c9d8d0" font-family="Arial, sans-serif" font-size="18">Extract jobs, draft ZAR quotes, prepare invoices, and save the operations pack.</text>
+  <rect x="958" y="116" width="178" height="52" rx="7" fill="#e6b84b"/>
+  <text x="990" y="149" fill="#101814" font-family="Arial, sans-serif" font-size="16" font-weight="900">Run demo</text>
+  <g>
+    <rect x="326" y="268" width="264" height="104" rx="8" fill="#ffffff" stroke="#ded7ca"/>
+    <text x="350" y="305" fill="#69746f" font-family="Arial, sans-serif" font-size="15" font-weight="800">Open jobs</text>
+    <text x="350" y="347" fill="#101814" font-family="Arial, sans-serif" font-size="36" font-weight="900">8</text>
+    <rect x="610" y="268" width="264" height="104" rx="8" fill="#ffffff" stroke="#ded7ca"/>
+    <text x="634" y="305" fill="#69746f" font-family="Arial, sans-serif" font-size="15" font-weight="800">Quote pipeline</text>
+    <text x="634" y="347" fill="#101814" font-family="Arial, sans-serif" font-size="34" font-weight="900">R42,850</text>
+    <rect x="894" y="268" width="290" height="104" rx="8" fill="#ffffff" stroke="#ded7ca"/>
+    <text x="918" y="305" fill="#69746f" font-family="Arial, sans-serif" font-size="15" font-weight="800">Workers available</text>
+    <text x="918" y="347" fill="#101814" font-family="Arial, sans-serif" font-size="36" font-weight="900">4</text>
+  </g>
+  <rect x="326" y="402" width="416" height="248" rx="9" fill="#ffffff" stroke="#ded7ca"/>
+  <text x="354" y="441" fill="#101814" font-family="Arial, sans-serif" font-size="22" font-weight="900">AI Inbox</text>
+  <rect x="354" y="464" width="360" height="72" rx="7" fill="#f4f0e8" stroke="#ded7ca"/>
+  <text x="374" y="494" fill="#516158" font-family="Arial, sans-serif" font-size="15">Hi, need 6 cubes river sand and 2 cubes</text>
+  <text x="374" y="518" fill="#516158" font-family="Arial, sans-serif" font-size="15">19mm stone delivered before Friday...</text>
+  <rect x="354" y="560" width="168" height="46" rx="7" fill="#158052"/>
+  <text x="386" y="590" fill="#ffffff" font-family="Arial, sans-serif" font-size="15" font-weight="900">Run extraction</text>
+  <rect x="762" y="402" width="422" height="248" rx="9" fill="#ffffff" stroke="#ded7ca"/>
+  <text x="790" y="441" fill="#101814" font-family="Arial, sans-serif" font-size="22" font-weight="900">Generated Quote</text>
+  <rect x="790" y="468" width="366" height="42" rx="6" fill="#f2fbf5"/>
+  <text x="812" y="495" fill="#12623f" font-family="Arial, sans-serif" font-size="15" font-weight="800">Delivery job in Modimolle</text>
+  <line x1="790" y1="533" x2="1156" y2="533" stroke="#ded7ca"/>
+  <text x="790" y="564" fill="#516158" font-family="Arial, sans-serif" font-size="15">6 cubes river sand</text>
+  <text x="1066" y="564" fill="#101814" font-family="Arial, sans-serif" font-size="15" font-weight="900">R3,900</text>
+  <text x="790" y="594" fill="#516158" font-family="Arial, sans-serif" font-size="15">Tipper delivery and diesel</text>
+  <text x="1066" y="594" fill="#101814" font-family="Arial, sans-serif" font-size="15" font-weight="900">R2,400</text>
+  <rect x="790" y="614" width="366" height="50" rx="7" fill="#101814"/>
+  <text x="812" y="646" fill="#c9d8d0" font-family="Arial, sans-serif" font-size="15">Total</text>
+  <text x="1042" y="646" fill="#ffffff" font-family="Arial, sans-serif" font-size="18" font-weight="900">R8,970</text>
+</svg>
