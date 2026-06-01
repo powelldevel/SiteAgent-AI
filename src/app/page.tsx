@@ -58,6 +58,21 @@ type SavedJob = {
   invoices?: { total: number | null; status: string | null }[] | null;
 };
 
+type ServicesStatus = {
+  openai: {
+    configured: boolean;
+    model: string;
+    required: string[];
+  };
+  supabase: {
+    configured: boolean;
+    urlConfigured: boolean;
+    anonKeyConfigured: boolean;
+    serviceRoleKeyConfigured: boolean;
+    required: string[];
+  };
+};
+
 const statuses: JobStatus[] = ["new", "quoted", "accepted", "scheduled"];
 
 const workflow = [
@@ -838,13 +853,128 @@ function WorkersView() {
 }
 
 function SettingsView() {
+  const [status, setStatus] = useState<ServicesStatus | null>(null);
+  const [statusLoading, setStatusLoading] = useState(true);
+  const [statusError, setStatusError] = useState("");
+
+  async function loadStatus() {
+    setStatusLoading(true);
+    setStatusError("");
+
+    try {
+      const response = await fetch("/api/config/status");
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error ?? "Could not read service status.");
+      }
+
+      setStatus(data);
+    } catch (error) {
+      setStatusError(error instanceof Error ? error.message : "Could not read service status.");
+    } finally {
+      setStatusLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadInitialStatus() {
+      try {
+        const response = await fetch("/api/config/status");
+        const data = await response.json();
+
+        if (cancelled) return;
+
+        if (!response.ok) {
+          throw new Error(data.error ?? "Could not read service status.");
+        }
+
+        setStatus(data);
+      } catch (error) {
+        if (!cancelled) {
+          setStatusError(error instanceof Error ? error.message : "Could not read service status.");
+        }
+      } finally {
+        if (!cancelled) {
+          setStatusLoading(false);
+        }
+      }
+    }
+
+    void loadInitialStatus();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   return (
     <section id="setup" className="grid min-w-0 gap-4 sm:gap-5 lg:grid-cols-2">
+      <Panel title="Live Services">
+        <div className="grid min-w-0 gap-3">
+          {statusLoading && (
+            <div className="grid min-h-28 place-items-center rounded border border-dashed border-[#cfc6b5] bg-white text-sm font-bold text-[#69746f]">
+              Checking live services...
+            </div>
+          )}
+          {statusError && <StatusMessage tone="error" text={statusError} />}
+          {status && (
+            <>
+              <ServiceRow
+                title="OpenAI extraction"
+                ready={status.openai.configured}
+                detail={
+                  status.openai.configured
+                    ? `Live AI is enabled with ${status.openai.model}.`
+                    : "Add OPENAI_API_KEY to switch from demo extraction to live AI."
+                }
+              />
+              <ServiceRow
+                title="Supabase persistence"
+                ready={status.supabase.configured}
+                detail={
+                  status.supabase.configured
+                    ? "Saving jobs, customers, quotes, invoices, and AI audit records is enabled."
+                    : "Add the Supabase URL, anon key, and service role key to enable saving."
+                }
+              />
+              <div className="grid min-w-0 gap-2 rounded border border-[#ded7ca] bg-white p-3 text-sm">
+                <EnvLine name="NEXT_PUBLIC_SUPABASE_URL" ready={status.supabase.urlConfigured} />
+                <EnvLine name="NEXT_PUBLIC_SUPABASE_ANON_KEY" ready={status.supabase.anonKeyConfigured} />
+                <EnvLine name="SUPABASE_SERVICE_ROLE_KEY" ready={status.supabase.serviceRoleKeyConfigured} />
+                <EnvLine name="OPENAI_API_KEY" ready={status.openai.configured} />
+              </div>
+              <button
+                onClick={() => void loadStatus()}
+                className="inline-flex h-10 w-full items-center justify-center gap-2 rounded border border-[#cfc6b5] bg-white px-4 text-sm font-black text-[#101814] hover:bg-[#f8fbf5] sm:w-auto"
+              >
+                Refresh status
+              </button>
+            </>
+          )}
+        </div>
+      </Panel>
       <Panel title="Setup">
         <div className="space-y-3 text-sm leading-6 text-[#516158]">
-          <p>Connect Supabase Auth, Postgres, and Storage using the environment variables in the README.</p>
+          <p>Get an OpenAI API key from the OpenAI platform and add it to `.env.local` as `OPENAI_API_KEY`.</p>
+          <p>Run `supabase-schema.sql`, then add the Supabase project URL, anon key, and service role key.</p>
+          <p>Restart the dev server after editing `.env.local`, then refresh this status panel.</p>
+        </div>
+      </Panel>
+      <Panel title="Key Safety">
+        <div className="space-y-3 text-sm leading-6 text-[#516158]">
+          <p>Never paste real keys into chat, screenshots, commits, browser-visible code, or public demos.</p>
+          <p>`OPENAI_API_KEY` and `SUPABASE_SERVICE_ROLE_KEY` must stay server-only.</p>
+          <p>`NEXT_PUBLIC_SUPABASE_ANON_KEY` is allowed in browser code, but database access still needs RLS policies.</p>
+        </div>
+      </Panel>
+      <Panel title="Next Upgrade">
+        <div className="space-y-3 text-sm leading-6 text-[#516158]">
+          <p>Add Supabase Auth so each contractor only sees their own company records.</p>
+          <p>Store generated quote and invoice PDFs in Supabase Storage after pilots ask for downloadable documents.</p>
           <p>Add an OpenAI API key to switch the extractor from deterministic demo mode to live AI JSON extraction.</p>
-          <p>Replace browser print with Playwright PDF generation when pilots need downloadable files saved to storage.</p>
         </div>
       </Panel>
       <Panel title="Company Profile">
@@ -858,6 +988,31 @@ function SettingsView() {
         </div>
       </Panel>
     </section>
+  );
+}
+
+function ServiceRow({ title, ready, detail }: { title: string; ready: boolean; detail: string }) {
+  return (
+    <div className="min-w-0 rounded border border-[#ded7ca] bg-white p-3 shadow-sm">
+      <div className="flex min-w-0 items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="font-black">{title}</p>
+          <p className="mt-1 text-sm leading-6 text-[#69746f]">{detail}</p>
+        </div>
+        <Badge>{ready ? "Ready" : "Missing keys"}</Badge>
+      </div>
+    </div>
+  );
+}
+
+function EnvLine({ name, ready }: { name: string; ready: boolean }) {
+  return (
+    <div className="flex min-w-0 items-center justify-between gap-3">
+      <code className="min-w-0 break-words rounded bg-[#f4f0e8] px-2 py-1 text-xs font-black">{name}</code>
+      <span className={`shrink-0 text-xs font-black ${ready ? "text-[#12623f]" : "text-[#a33a2a]"}`}>
+        {ready ? "Set" : "Missing"}
+      </span>
+    </div>
   );
 }
 

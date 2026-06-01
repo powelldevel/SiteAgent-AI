@@ -7,7 +7,7 @@ SiteGent is a WhatsApp-first AI ops app for South African contractors. It turns 
 ## Live Links
 
 - Repo: <https://github.com/powelldevel/SiteAgent-AI>
-- Live demo: add deployment URL here after Vercel/Netlify setup
+- Live demo: <https://sitegent.vercel.app>
 - Local: `http://localhost:3000`
 
 ## Try It
@@ -20,6 +20,12 @@ npm run dev
 Open `http://localhost:3000`, click **Demo Mode**, then run extraction in **AI Inbox**.
 
 No API keys are required for the demo flow. Without `OPENAI_API_KEY`, SiteGent uses a deterministic demo extractor. Without Supabase keys, saving stays in demo mode.
+
+To verify the showable demo path while the dev server is running:
+
+```bash
+npm run demo:check
+```
 
 ## What It Shows
 
@@ -52,7 +58,7 @@ More detail:
 
 ## Environment
 
-Create `.env.local` only when you want live AI or Supabase persistence:
+Copy `.env.example` to `.env.local` only when you want live AI or Supabase persistence:
 
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=
@@ -62,6 +68,12 @@ SITEGENT_DEMO_COMPANY_ID=
 OPENAI_API_KEY=
 OPENAI_MODEL=gpt-5.4-mini
 ```
+
+OpenAI: create an API key in the OpenAI platform and paste it into `OPENAI_API_KEY`.
+
+Supabase: run `supabase-schema.sql`, then paste the Project URL, legacy anon key, and legacy service role key from the Supabase dashboard. Keep `SUPABASE_SERVICE_ROLE_KEY` server-only.
+
+The Settings screen shows whether OpenAI and Supabase are configured.
 
 ## Status
 
