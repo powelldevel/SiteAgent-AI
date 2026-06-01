@@ -1,38 +1,39 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getAuthContext } from "@/lib/auth";
+import { getRequestKey, rateLimit } from "@/lib/rate-limit";
 import { getSupabaseServerClient, isSupabaseServerConfigured } from "@/lib/supabase";
 
 const quoteItemSchema = z.object({
-  description: z.string().min(1),
-  quantity: z.number().positive(),
+  description: z.string().min(1).max(180),
+  quantity: z.number().positive().max(10000),
   unitPrice: z.number().nonnegative(),
   total: z.number().nonnegative(),
 });
 
 const operationsPackSchema = z.object({
-  originalMessage: z.string().min(1),
+  originalMessage: z.string().min(1).max(5000),
   extractionMode: z.string().min(1),
   job: z.object({
-    customerName: z.string().min(1),
-    phone: z.string().min(1),
-    location: z.string().min(1),
-    jobType: z.string().min(1),
-    title: z.string().min(1),
-    materials: z.array(z.string()),
-    estimatedDate: z.string().min(1),
+    customerName: z.string().min(1).max(120),
+    phone: z.string().min(1).max(40),
+    location: z.string().min(1).max(220),
+    jobType: z.string().min(1).max(80),
+    title: z.string().min(1).max(180),
+    materials: z.array(z.string().max(120)).max(20),
+    estimatedDate: z.string().min(1).max(80),
     urgency: z.enum(["low", "medium", "high"]),
-    missingDetails: z.array(z.string()),
-    summary: z.string().min(1),
-    quoteItems: z.array(quoteItemSchema),
-    followUpMessage: z.string().min(1),
+    missingDetails: z.array(z.string().max(180)).max(20),
+    summary: z.string().min(1).max(1200),
+    quoteItems: z.array(quoteItemSchema).min(1).max(30),
+    followUpMessage: z.string().min(1).max(1200),
   }),
   quote: z.object({
-    quoteNumber: z.string().min(1),
+    quoteNumber: z.string().min(1).max(80),
     subtotal: z.number().nonnegative(),
     tax: z.number().nonnegative(),
     total: z.number().nonnegative(),
-    items: z.array(quoteItemSchema),
+    items: z.array(quoteItemSchema).min(1).max(30),
   }),
 });
 
@@ -52,7 +53,17 @@ function dueDate() {
   return date.toISOString().slice(0, 10);
 }
 
+function documentSuffix() {
+  return Date.now().toString().slice(-8);
+}
+
 export async function POST(request: Request) {
+  const limited = rateLimit(`save:${getRequestKey(request)}`, { limit: 60, windowMs: 60_000 });
+
+  if (limited) {
+    return limited;
+  }
+
   if (!isSupabaseServerConfigured()) {
     return NextResponse.json({
       connected: false,
@@ -85,6 +96,7 @@ export async function POST(request: Request) {
 
   try {
     const companyId = auth.companyId;
+    const suffix = documentSuffix();
 
     const { data: customerData, error: customerError } = await supabase
       .from("customers")
@@ -135,7 +147,7 @@ export async function POST(request: Request) {
       .insert({
         company_id: companyId,
         job_id: job.id,
-        quote_number: pack.quote.quoteNumber,
+        quote_number: `SG-Q-${suffix}`,
         subtotal: pack.quote.subtotal,
         tax: pack.quote.tax,
         total: pack.quote.total,
@@ -164,7 +176,7 @@ export async function POST(request: Request) {
       .insert({
         company_id: companyId,
         job_id: job.id,
-        invoice_number: `SG-I-${Date.now().toString().slice(-6)}`,
+        invoice_number: `SG-I-${suffix}`,
         total: pack.quote.total,
         status: "draft",
         due_date: dueDate(),

@@ -57,4 +57,4 @@ Examples:
 
 ## Hardening
 
-Before broad production rollout, add invite/team management, billing, document escaping, route tests, backups, and monitoring.
+Current API guardrails include auth-required saved-job routes when Supabase is configured, company-scoped reads/writes, request size limits, and lightweight per-instance throttling. Before broad production rollout, add invite/team management, billing, durable distributed rate limiting, document escaping, backups, and monitoring.

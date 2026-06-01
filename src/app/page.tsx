@@ -28,7 +28,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import type { Session } from "@supabase/supabase-js";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { customers, demoMessages, invoices, jobs, quotes, sampleMessage, workers } from "@/lib/mock-data";
 import { getSupabaseBrowserClient } from "@/lib/supabase";
 import type { ExtractedJob, Job, JobStatus, Quote } from "@/lib/types";
@@ -150,11 +150,11 @@ export default function Home() {
       }
     : null;
 
-  function authHeaders(currentSession = session): Record<string, string> {
+  const authHeaders = useCallback((currentSession: Session | null = session): Record<string, string> => {
     return currentSession?.access_token ? { authorization: `Bearer ${currentSession.access_token}` } : {};
-  }
+  }, [session]);
 
-  async function loadProfile(currentSession = session) {
+  const loadProfile = useCallback(async (currentSession: Session | null = session) => {
     if (!currentSession) {
       setProfile(null);
       return;
@@ -186,7 +186,7 @@ export default function Home() {
     } finally {
       setProfileLoading(false);
     }
-  }
+  }, [authHeaders, session]);
 
   async function loadSavedJobs() {
     setSavedJobsLoading(true);
@@ -247,7 +247,7 @@ export default function Home() {
       cancelled = true;
       listener.subscription.unsubscribe();
     };
-  }, [supabase]);
+  }, [supabase, loadProfile]);
 
   useEffect(() => {
     if (!authReady) return;
@@ -285,7 +285,7 @@ export default function Home() {
     return () => {
       cancelled = true;
     };
-  }, [authReady, session?.access_token]);
+  }, [authReady, authHeaders, session?.access_token]);
 
   function fillDemo(label = demoMessages[0].label) {
     const demo = demoMessages.find((item) => item.label === label) ?? demoMessages[0];

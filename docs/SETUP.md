@@ -67,6 +67,21 @@ npm run demo:check
 
 `npm run demo:check` expects the dev server to be running at `http://127.0.0.1:3000`. Set `SITEGENT_URL` to check a different URL. The Settings screen also has a live-services checklist.
 
+After Supabase and OpenAI are configured, run the two-user isolation smoke test:
+
+```bash
+SITEGENT_URL=https://sitegent.vercel.app \
+NEXT_PUBLIC_SUPABASE_URL=... \
+NEXT_PUBLIC_SUPABASE_ANON_KEY=... \
+PILOT_A_EMAIL=pilot-a@example.com \
+PILOT_A_PASSWORD=... \
+PILOT_B_EMAIL=pilot-b@example.com \
+PILOT_B_PASSWORD=... \
+npm run pilot:check
+```
+
+The smoke test signs in or creates two pilot accounts, onboards two companies, saves an operations pack for Pilot A, and confirms Pilot B cannot see Pilot A's saved job.
+
 ## Deploy
 
 Import the repo into Vercel, add environment variables, deploy `main`, then add the live URL to the README.

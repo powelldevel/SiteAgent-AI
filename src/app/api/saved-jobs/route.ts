@@ -3,6 +3,10 @@ import { getAuthContext } from "@/lib/auth";
 import { getSupabaseServerClient, isSupabaseServerConfigured } from "@/lib/supabase";
 
 export async function GET(request: Request) {
+  const url = new URL(request.url);
+  const rawLimit = Number(url.searchParams.get("limit") ?? 20);
+  const limit = Number.isFinite(rawLimit) ? Math.min(Math.max(rawLimit, 1), 50) : 20;
+
   if (!isSupabaseServerConfigured()) {
     return NextResponse.json({
       connected: false,
@@ -46,11 +50,11 @@ export async function GET(request: Request) {
     )
     .eq("company_id", auth.companyId)
     .order("created_at", { ascending: false })
-    .limit(8);
+    .limit(limit);
 
   if (error) {
     return NextResponse.json({ connected: true, error: error.message, jobs: [] }, { status: 500 });
   }
 
-  return NextResponse.json({ connected: true, jobs: data ?? [] });
+  return NextResponse.json({ connected: true, jobs: data ?? [], limit });
 }

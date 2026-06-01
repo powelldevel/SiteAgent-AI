@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "demo:check": "node scripts/demo-check.mjs"
+    "demo:check": "node scripts/demo-check.mjs",
+    "pilot:check": "node scripts/live-pilot-check.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.106.0",

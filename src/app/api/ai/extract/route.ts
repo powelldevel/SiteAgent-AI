@@ -1,8 +1,17 @@
 import OpenAI from "openai";
 import { NextResponse } from "next/server";
 import { extractedJobSchema, inferJobFromMessage } from "@/lib/ai";
+import { getRequestKey, rateLimit } from "@/lib/rate-limit";
+
+const MAX_MESSAGE_LENGTH = 5000;
 
 export async function POST(request: Request) {
+  const limited = rateLimit(`extract:${getRequestKey(request)}`, { limit: 30, windowMs: 60_000 });
+
+  if (limited) {
+    return limited;
+  }
+
   let payload: { message?: string };
 
   try {
@@ -15,6 +24,10 @@ export async function POST(request: Request) {
 
   if (!message?.trim()) {
     return NextResponse.json({ error: "Paste a WhatsApp message or voice-note transcript first." }, { status: 400 });
+  }
+
+  if (message.length > MAX_MESSAGE_LENGTH) {
+    return NextResponse.json({ error: `Message is too long. Keep it under ${MAX_MESSAGE_LENGTH} characters.` }, { status: 413 });
   }
 
   if (!process.env.OPENAI_API_KEY) {

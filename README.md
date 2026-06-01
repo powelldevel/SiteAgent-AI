@@ -27,6 +27,8 @@ To verify the showable demo path while the dev server is running:
 npm run demo:check
 ```
 
+After production keys are configured, use `npm run pilot:check` with two pilot accounts to verify sign-up, onboarding, save, and tenant isolation.
+
 ## What It Shows
 
 - AI-style WhatsApp job intake
