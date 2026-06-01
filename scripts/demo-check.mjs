@@ -12,6 +12,18 @@ async function request(path, options) {
   return body;
 }
 
+async function optionalJson(path) {
+  const response = await fetch(`${baseUrl}${path}`);
+  const contentType = response.headers.get("content-type") ?? "";
+  const body = contentType.includes("application/json") ? await response.json() : await response.text();
+
+  if (!response.ok && response.status !== 401) {
+    throw new Error(`${path} returned ${response.status}: ${JSON.stringify(body)}`);
+  }
+
+  return { status: response.status, body };
+}
+
 const message =
   "Thabo here from Modimolle. Need 6 cubes river sand and 2 cubes 19mm stone delivered before Friday. Please quote me on 082 555 0142.";
 
@@ -30,8 +42,8 @@ if (!extraction.job?.title || !Array.isArray(extraction.job.quoteItems) || extra
   throw new Error("Extraction did not return a complete job with quote items.");
 }
 
-const savedJobs = await request("/api/saved-jobs");
 const configStatus = await request("/api/config/status");
+const savedJobs = await optionalJson("/api/saved-jobs");
 const quote = await fetch(`${baseUrl}/api/documents/quote?id=quote-ai`);
 const invoice = await fetch(`${baseUrl}/api/documents/invoice?id=invoice-ai`);
 
@@ -51,7 +63,8 @@ console.log(
       extractionMode: extraction.mode,
       extractedTitle: extraction.job.title,
       openAiConfigured: Boolean(configStatus.openai?.configured),
-      savedJobsConnected: Boolean(savedJobs.connected),
+      savedJobsStatus: savedJobs.status,
+      savedJobsConnected: Boolean(savedJobs.body?.connected),
       supabaseConfigured: Boolean(configStatus.supabase?.configured),
       quoteStatus: quote.status,
       invoiceStatus: invoice.status,

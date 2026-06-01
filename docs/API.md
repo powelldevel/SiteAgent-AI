@@ -30,11 +30,21 @@ Modes: `ai`, `demo`, or `fallback`.
 
 Saves the generated customer, message, job, quote, invoice, and AI audit record to Supabase.
 
-Returns record IDs when Supabase is configured, or a demo-mode message when it is not.
+Returns record IDs when Supabase is configured and the request includes a valid bearer token. Returns a demo-mode message when Supabase is not configured.
 
 ## `GET /api/saved-jobs`
 
 Reads recent saved jobs for the dashboard.
+
+When Supabase is configured, this route requires a valid bearer token and only returns jobs for the authenticated user's company.
+
+## `GET /api/auth/me`
+
+Returns the signed-in user's company profile.
+
+## `POST /api/auth/onboard`
+
+Creates the signed-in user's company and owner profile after first sign-up.
 
 ## `GET /api/documents/[type]`
 
@@ -47,4 +57,4 @@ Examples:
 
 ## Hardening
 
-Before production, add auth checks, company scoping, document escaping, and route tests.
+Before broad production rollout, add invite/team management, billing, document escaping, route tests, backups, and monitoring.

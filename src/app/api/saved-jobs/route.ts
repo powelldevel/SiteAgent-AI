@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
+import { getAuthContext } from "@/lib/auth";
 import { getSupabaseServerClient, isSupabaseServerConfigured } from "@/lib/supabase";
 
-export async function GET() {
+export async function GET(request: Request) {
   if (!isSupabaseServerConfigured()) {
     return NextResponse.json({
       connected: false,
@@ -18,6 +19,12 @@ export async function GET() {
       message: "Demo mode: Supabase is not connected yet.",
       jobs: [],
     });
+  }
+
+  const auth = await getAuthContext(request);
+
+  if (!auth.ok) {
+    return auth.response;
   }
 
   const { data, error } = await supabase
@@ -37,6 +44,7 @@ export async function GET() {
       invoices(total, status)
     `,
     )
+    .eq("company_id", auth.companyId)
     .order("created_at", { ascending: false })
     .limit(8);
 

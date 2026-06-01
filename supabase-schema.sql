@@ -134,12 +134,20 @@ create or replace function current_company_id()
 returns uuid
 language sql
 stable
+security definer
+set search_path = public
 as $$
   select company_id from users where id = auth.uid()
 $$;
 
 create policy "company members read own company" on companies
   for select using (id = current_company_id());
+
+create policy "users read own profile" on users
+  for select using (id = auth.uid());
+
+create policy "users update own profile" on users
+  for update using (id = auth.uid()) with check (id = auth.uid() and company_id = current_company_id());
 
 create policy "company members manage customers" on customers
   for all using (company_id = current_company_id()) with check (company_id = current_company_id());
@@ -152,6 +160,21 @@ create policy "company members manage jobs" on jobs
 
 create policy "company members manage quotes" on quotes
   for all using (company_id = current_company_id()) with check (company_id = current_company_id());
+
+create policy "company members manage quote items" on quote_items
+  for all using (
+    exists (
+      select 1 from quotes
+      where quotes.id = quote_items.quote_id
+      and quotes.company_id = current_company_id()
+    )
+  ) with check (
+    exists (
+      select 1 from quotes
+      where quotes.id = quote_items.quote_id
+      and quotes.company_id = current_company_id()
+    )
+  );
 
 create policy "company members manage invoices" on invoices
   for all using (company_id = current_company_id()) with check (company_id = current_company_id());

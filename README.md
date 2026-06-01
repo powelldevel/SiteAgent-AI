@@ -33,6 +33,7 @@ npm run demo:check
 - Job card generation
 - Quote draft with VAT and ZAR totals
 - Invoice draft and print-ready document routes
+- Supabase Auth sign-up, sign-in, and company onboarding
 - Optional Supabase persistence for saved jobs
 
 ## Architecture
@@ -77,4 +78,4 @@ The Settings screen shows whether OpenAI and Supabase are configured.
 
 ## Status
 
-MVP/demo-ready. Before real customer data, add authenticated tenant checks to the API routes and tighten RLS coverage for all tables.
+Public demo is live. With Supabase environment variables configured, real users can create an account, onboard a company, and save company-scoped operations packs. Before broad production rollout, add billing, custom domains, monitoring, backups, and invite/team management.

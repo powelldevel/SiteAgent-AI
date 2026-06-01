@@ -51,6 +51,12 @@ Restart `npm run dev` after changing `.env.local`. The Settings screen shows whe
 
 Keep `SUPABASE_SERVICE_ROLE_KEY` server-only. Do not put it in browser code, screenshots, commits, or public demos.
 
+## Real Users
+
+After Supabase is configured, users can sign up from the Settings screen, create their company profile, and save real operations packs. API routes require a Supabase access token and scope saved jobs to the authenticated user's `company_id`.
+
+For a first pilot, keep sign-ups controlled by sharing the URL only with selected contractors. For broader launch, add billing, team invites, email templates, database backups, and monitoring.
+
 ## Checks
 
 ```bash

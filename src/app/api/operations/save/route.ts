@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { company } from "@/lib/mock-data";
+import { getAuthContext } from "@/lib/auth";
 import { getSupabaseServerClient, isSupabaseServerConfigured } from "@/lib/supabase";
 
 const quoteItemSchema = z.object({
@@ -52,41 +52,6 @@ function dueDate() {
   return date.toISOString().slice(0, 10);
 }
 
-async function getCompanyId(supabase: NonNullable<ReturnType<typeof getSupabaseServerClient>>) {
-  if (process.env.SITEGENT_DEMO_COMPANY_ID) {
-    return process.env.SITEGENT_DEMO_COMPANY_ID;
-  }
-
-  const { data: existingData, error: findError } = await supabase.from("companies").select("id").limit(1).maybeSingle();
-  const existing = existingData as IdRow | null;
-
-  if (findError) {
-    throw new Error(findError.message);
-  }
-
-  if (existing?.id) {
-    return existing.id as string;
-  }
-
-  const { data: createdData, error: createError } = await supabase
-    .from("companies")
-    .insert({
-      name: company.name,
-      phone: company.phone,
-      email: company.email,
-      address: company.address,
-    })
-    .select("id")
-    .single();
-  const created = createdData as IdRow;
-
-  if (createError) {
-    throw new Error(createError.message);
-  }
-
-  return created.id as string;
-}
-
 export async function POST(request: Request) {
   if (!isSupabaseServerConfigured()) {
     return NextResponse.json({
@@ -104,6 +69,12 @@ export async function POST(request: Request) {
     });
   }
 
+  const auth = await getAuthContext(request);
+
+  if (!auth.ok) {
+    return auth.response;
+  }
+
   const parsed = operationsPackSchema.safeParse(await request.json());
 
   if (!parsed.success) {
@@ -113,7 +84,7 @@ export async function POST(request: Request) {
   const pack = parsed.data;
 
   try {
-    const companyId = await getCompanyId(supabase);
+    const companyId = auth.companyId;
 
     const { data: customerData, error: customerError } = await supabase
       .from("customers")

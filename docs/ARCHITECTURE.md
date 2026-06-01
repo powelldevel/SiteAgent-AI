@@ -25,7 +25,6 @@
 
 ## Production Notes
 
-- Add Supabase Auth before real users.
-- Scope reads/writes by authenticated company.
-- Add RLS policies for `users` and `quote_items`.
+- Add team invites and role management before multi-person companies.
+- Add monitoring, backups, and billing before broad production rollout.
 - Escape dynamic content in document HTML.

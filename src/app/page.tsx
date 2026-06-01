@@ -27,8 +27,10 @@ import {
   Zap,
   type LucideIcon,
 } from "lucide-react";
+import type { Session } from "@supabase/supabase-js";
 import { useEffect, useMemo, useState } from "react";
 import { customers, demoMessages, invoices, jobs, quotes, sampleMessage, workers } from "@/lib/mock-data";
+import { getSupabaseBrowserClient } from "@/lib/supabase";
 import type { ExtractedJob, Job, JobStatus, Quote } from "@/lib/types";
 
 const nav = [
@@ -73,6 +75,14 @@ type ServicesStatus = {
   };
 };
 
+type UserProfile = {
+  id: string;
+  email: string;
+  name: string;
+  role: string;
+  companyId: string;
+};
+
 const statuses: JobStatus[] = ["new", "quoted", "accepted", "scheduled"];
 
 const workflow = [
@@ -89,6 +99,7 @@ function money(value: number) {
 }
 
 export default function Home() {
+  const supabase = useMemo(() => getSupabaseBrowserClient(), []);
   const [active, setActive] = useState<View>("dashboard");
   const [message, setMessage] = useState(sampleMessage);
   const [extracted, setExtracted] = useState<ExtractedJob | null>(null);
@@ -103,6 +114,12 @@ export default function Home() {
   const [savedJobsMessage, setSavedJobsMessage] = useState("");
   const [savedJobsError, setSavedJobsError] = useState("");
   const [supabaseConnected, setSupabaseConnected] = useState<boolean | null>(null);
+  const [authReady, setAuthReady] = useState(!supabase);
+  const [session, setSession] = useState<Session | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [profileLoading, setProfileLoading] = useState(false);
+  const [authMessage, setAuthMessage] = useState("");
+  const [authError, setAuthError] = useState("");
 
   const generatedQuote = useMemo<Quote | null>(() => {
     if (!extracted) return null;
@@ -133,11 +150,51 @@ export default function Home() {
       }
     : null;
 
+  function authHeaders(currentSession = session): Record<string, string> {
+    return currentSession?.access_token ? { authorization: `Bearer ${currentSession.access_token}` } : {};
+  }
+
+  async function loadProfile(currentSession = session) {
+    if (!currentSession) {
+      setProfile(null);
+      return;
+    }
+
+    setProfileLoading(true);
+    setAuthError("");
+
+    try {
+      const response = await fetch("/api/auth/me", {
+        headers: authHeaders(currentSession),
+      });
+      const data = await response.json();
+
+      if (data.needsOnboarding) {
+        setProfile(null);
+        setAuthMessage("Create your company profile to start saving real jobs.");
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error(data.error ?? "Could not load your profile.");
+      }
+
+      setProfile(data.profile ?? null);
+    } catch (error) {
+      setProfile(null);
+      setAuthError(error instanceof Error ? error.message : "Could not load your profile.");
+    } finally {
+      setProfileLoading(false);
+    }
+  }
+
   async function loadSavedJobs() {
     setSavedJobsLoading(true);
     setSavedJobsError("");
     try {
-      const response = await fetch("/api/saved-jobs");
+      const response = await fetch("/api/saved-jobs", {
+        headers: authHeaders(),
+      });
       const data = await response.json();
       setSupabaseConnected(Boolean(data.connected));
       setSavedJobs(data.jobs ?? []);
@@ -154,13 +211,56 @@ export default function Home() {
   }
 
   useEffect(() => {
+    if (!supabase) {
+      return;
+    }
+
+    const authClient = supabase;
+    let cancelled = false;
+
+    async function loadInitialSession() {
+      const { data } = await authClient.auth.getSession();
+
+      if (cancelled) return;
+
+      setSession(data.session);
+      setAuthReady(true);
+      if (data.session) {
+        await loadProfile(data.session);
+      }
+    }
+
+    void loadInitialSession();
+
+    const { data: listener } = authClient.auth.onAuthStateChange((_event, nextSession) => {
+      setSession(nextSession);
+      setAuthMessage("");
+      setAuthError("");
+      if (nextSession) {
+        void loadProfile(nextSession);
+      } else {
+        setProfile(null);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+      listener.subscription.unsubscribe();
+    };
+  }, [supabase]);
+
+  useEffect(() => {
+    if (!authReady) return;
+
     let cancelled = false;
 
     async function loadInitialSavedJobs() {
       setSavedJobsLoading(true);
       setSavedJobsError("");
       try {
-        const response = await fetch("/api/saved-jobs");
+        const response = await fetch("/api/saved-jobs", {
+          headers: authHeaders(),
+        });
         const data = await response.json();
         if (cancelled) return;
         setSupabaseConnected(Boolean(data.connected));
@@ -185,7 +285,7 @@ export default function Home() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [authReady, session?.access_token]);
 
   function fillDemo(label = demoMessages[0].label) {
     const demo = demoMessages.find((item) => item.label === label) ?? demoMessages[0];
@@ -227,7 +327,7 @@ export default function Home() {
     try {
       const response = await fetch("/api/operations/save", {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: { "content-type": "application/json", ...authHeaders() },
         body: JSON.stringify({
           originalMessage: message,
           extractionMode: mode,
@@ -260,6 +360,86 @@ export default function Home() {
       setSaveError(error instanceof Error ? error.message : "Could not save operations pack.");
     } finally {
       setSaveLoading(false);
+    }
+  }
+
+  async function signIn(email: string, password: string) {
+    if (!supabase) {
+      setAuthError("Add Supabase environment variables before signing in.");
+      return;
+    }
+
+    setAuthError("");
+    setAuthMessage("");
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+
+    if (error) {
+      setAuthError(error.message);
+      return;
+    }
+
+    setAuthMessage("Signed in. Loading your workspace...");
+    await loadSavedJobs();
+  }
+
+  async function signUp(email: string, password: string) {
+    if (!supabase) {
+      setAuthError("Add Supabase environment variables before creating accounts.");
+      return;
+    }
+
+    setAuthError("");
+    setAuthMessage("");
+    const { error } = await supabase.auth.signUp({ email, password });
+
+    if (error) {
+      setAuthError(error.message);
+      return;
+    }
+
+    setAuthMessage("Account created. Check your email if confirmation is enabled, then create your company profile.");
+  }
+
+  async function signOut() {
+    if (!supabase) return;
+
+    await supabase.auth.signOut();
+    setSession(null);
+    setProfile(null);
+    setSavedJobs([]);
+    setSavedJobsMessage("");
+    setAuthMessage("Signed out.");
+  }
+
+  async function onboardUser(input: { name: string; companyName: string; phone: string; address: string }) {
+    if (!session) {
+      setAuthError("Sign in before creating a company profile.");
+      return;
+    }
+
+    setProfileLoading(true);
+    setAuthError("");
+    setAuthMessage("");
+
+    try {
+      const response = await fetch("/api/auth/onboard", {
+        method: "POST",
+        headers: { "content-type": "application/json", ...authHeaders() },
+        body: JSON.stringify(input),
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error ?? "Could not create company profile.");
+      }
+
+      setProfile(data.profile ?? null);
+      setAuthMessage("Company profile created. You can now save real operations packs.");
+      await loadSavedJobs();
+    } catch (error) {
+      setAuthError(error instanceof Error ? error.message : "Could not create company profile.");
+    } finally {
+      setProfileLoading(false);
     }
   }
 
@@ -359,7 +539,21 @@ export default function Home() {
           {active === "quotes" && <QuotesView quote={generatedQuote} />}
           {active === "invoices" && <InvoicesView quote={generatedQuote} extracted={extracted} />}
           {active === "workers" && <WorkersView />}
-          {active === "settings" && <SettingsView />}
+          {active === "settings" && (
+            <SettingsView
+              supabaseEnabled={Boolean(supabase)}
+              authReady={authReady}
+              session={session}
+              profile={profile}
+              profileLoading={profileLoading}
+              authMessage={authMessage}
+              authError={authError}
+              signIn={signIn}
+              signUp={signUp}
+              signOut={signOut}
+              onboardUser={onboardUser}
+            />
+          )}
         </section>
       </div>
     </main>
@@ -852,7 +1046,31 @@ function WorkersView() {
   );
 }
 
-function SettingsView() {
+function SettingsView({
+  supabaseEnabled,
+  authReady,
+  session,
+  profile,
+  profileLoading,
+  authMessage,
+  authError,
+  signIn,
+  signUp,
+  signOut,
+  onboardUser,
+}: {
+  supabaseEnabled: boolean;
+  authReady: boolean;
+  session: Session | null;
+  profile: UserProfile | null;
+  profileLoading: boolean;
+  authMessage: string;
+  authError: string;
+  signIn: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string) => Promise<void>;
+  signOut: () => Promise<void>;
+  onboardUser: (input: { name: string; companyName: string; phone: string; address: string }) => Promise<void>;
+}) {
   const [status, setStatus] = useState<ServicesStatus | null>(null);
   const [statusLoading, setStatusLoading] = useState(true);
   const [statusError, setStatusError] = useState("");
@@ -912,6 +1130,19 @@ function SettingsView() {
 
   return (
     <section id="setup" className="grid min-w-0 gap-4 sm:gap-5 lg:grid-cols-2">
+      <AuthPanel
+        supabaseEnabled={supabaseEnabled}
+        authReady={authReady}
+        session={session}
+        profile={profile}
+        profileLoading={profileLoading}
+        message={authMessage}
+        error={authError}
+        signIn={signIn}
+        signUp={signUp}
+        signOut={signOut}
+        onboardUser={onboardUser}
+      />
       <Panel title="Live Services">
         <div className="grid min-w-0 gap-3">
           {statusLoading && (
@@ -972,7 +1203,7 @@ function SettingsView() {
       </Panel>
       <Panel title="Next Upgrade">
         <div className="space-y-3 text-sm leading-6 text-[#516158]">
-          <p>Add Supabase Auth so each contractor only sees their own company records.</p>
+          <p>Invite pilot contractors and watch their first saved operations packs.</p>
           <p>Store generated quote and invoice PDFs in Supabase Storage after pilots ask for downloadable documents.</p>
           <p>Add an OpenAI API key to switch the extractor from deterministic demo mode to live AI JSON extraction.</p>
         </div>
@@ -988,6 +1219,184 @@ function SettingsView() {
         </div>
       </Panel>
     </section>
+  );
+}
+
+function AuthPanel({
+  supabaseEnabled,
+  authReady,
+  session,
+  profile,
+  profileLoading,
+  message,
+  error,
+  signIn,
+  signUp,
+  signOut,
+  onboardUser,
+}: {
+  supabaseEnabled: boolean;
+  authReady: boolean;
+  session: Session | null;
+  profile: UserProfile | null;
+  profileLoading: boolean;
+  message: string;
+  error: string;
+  signIn: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string) => Promise<void>;
+  signOut: () => Promise<void>;
+  onboardUser: (input: { name: string; companyName: string; phone: string; address: string }) => Promise<void>;
+}) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [companyName, setCompanyName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
+  const [mode, setMode] = useState<"signin" | "signup">("signup");
+  const [submitting, setSubmitting] = useState(false);
+
+  async function submitAuth() {
+    setSubmitting(true);
+    try {
+      if (mode === "signin") {
+        await signIn(email, password);
+      } else {
+        await signUp(email, password);
+      }
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  async function submitOnboarding() {
+    setSubmitting(true);
+    try {
+      await onboardUser({ name, companyName, phone, address });
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <Panel title="User Access">
+      <div className="grid min-w-0 gap-4">
+        {!supabaseEnabled && (
+          <StatusMessage tone="info" text="Demo mode is public. Add Supabase keys in Vercel to enable real user accounts." />
+        )}
+        {supabaseEnabled && !authReady && (
+          <div className="grid min-h-24 place-items-center rounded border border-dashed border-[#cfc6b5] bg-white text-sm font-bold text-[#69746f]">
+            Checking account session...
+          </div>
+        )}
+        {supabaseEnabled && authReady && !session && (
+          <div className="grid min-w-0 gap-3">
+            <div className="inline-grid grid-cols-2 rounded border border-[#cfc6b5] bg-white p-1 text-sm font-black">
+              <button
+                onClick={() => setMode("signup")}
+                className={`h-9 rounded px-3 ${mode === "signup" ? "bg-[#101814] text-white" : "text-[#516158]"}`}
+              >
+                Create account
+              </button>
+              <button
+                onClick={() => setMode("signin")}
+                className={`h-9 rounded px-3 ${mode === "signin" ? "bg-[#101814] text-white" : "text-[#516158]"}`}
+              >
+                Sign in
+              </button>
+            </div>
+            <label className="grid gap-1 text-sm font-bold">
+              Email
+              <input
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                className="h-11 min-w-0 rounded border border-[#cfc6b5] bg-white px-3 outline-none focus:border-[#158052]"
+                placeholder="owner@example.com"
+              />
+            </label>
+            <label className="grid gap-1 text-sm font-bold">
+              Password
+              <input
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                className="h-11 min-w-0 rounded border border-[#cfc6b5] bg-white px-3 outline-none focus:border-[#158052]"
+                type="password"
+                placeholder="At least 6 characters"
+              />
+            </label>
+            <button
+              onClick={submitAuth}
+              disabled={submitting || !email || !password}
+              className="inline-flex h-11 w-full items-center justify-center rounded bg-[#158052] px-4 text-sm font-black text-white hover:bg-[#116b44] disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              {submitting ? "Working..." : mode === "signin" ? "Sign in" : "Create account"}
+            </button>
+          </div>
+        )}
+        {supabaseEnabled && session && !profile && (
+          <div className="grid min-w-0 gap-3">
+            <p className="text-sm leading-6 text-[#516158]">Finish setup once, then your jobs and saved packs stay scoped to your company.</p>
+            <label className="grid gap-1 text-sm font-bold">
+              Your name
+              <input
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                className="h-11 min-w-0 rounded border border-[#cfc6b5] bg-white px-3 outline-none focus:border-[#158052]"
+                placeholder="Kgotso Powell"
+              />
+            </label>
+            <label className="grid gap-1 text-sm font-bold">
+              Company name
+              <input
+                value={companyName}
+                onChange={(event) => setCompanyName(event.target.value)}
+                className="h-11 min-w-0 rounded border border-[#cfc6b5] bg-white px-3 outline-none focus:border-[#158052]"
+                placeholder="Powell Contractors"
+              />
+            </label>
+            <label className="grid gap-1 text-sm font-bold">
+              Phone
+              <input
+                value={phone}
+                onChange={(event) => setPhone(event.target.value)}
+                className="h-11 min-w-0 rounded border border-[#cfc6b5] bg-white px-3 outline-none focus:border-[#158052]"
+                placeholder="+27..."
+              />
+            </label>
+            <label className="grid gap-1 text-sm font-bold">
+              Address
+              <input
+                value={address}
+                onChange={(event) => setAddress(event.target.value)}
+                className="h-11 min-w-0 rounded border border-[#cfc6b5] bg-white px-3 outline-none focus:border-[#158052]"
+                placeholder="Business address"
+              />
+            </label>
+            <button
+              onClick={submitOnboarding}
+              disabled={submitting || profileLoading || !name || !companyName}
+              className="inline-flex h-11 w-full items-center justify-center rounded bg-[#158052] px-4 text-sm font-black text-white hover:bg-[#116b44] disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              {profileLoading || submitting ? "Saving..." : "Create company profile"}
+            </button>
+          </div>
+        )}
+        {supabaseEnabled && session && profile && (
+          <div className="rounded border border-[#b9e1c7] bg-[#f2fbf5] p-3">
+            <p className="font-black text-[#12623f]">Signed in as {profile.name}</p>
+            <p className="mt-1 text-sm text-[#516158]">{profile.email}</p>
+            <button
+              onClick={() => void signOut()}
+              className="mt-3 inline-flex h-10 items-center justify-center rounded border border-[#cfc6b5] bg-white px-4 text-sm font-black text-[#101814] hover:bg-[#f8fbf5]"
+            >
+              Sign out
+            </button>
+          </div>
+        )}
+        {message && <StatusMessage tone="success" text={message} />}
+        {error && <StatusMessage tone="error" text={error} />}
+      </div>
+    </Panel>
   );
 }
 
