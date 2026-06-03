@@ -49,6 +49,7 @@ Production checks:
 
 More detail:
 
+- [Client testing guide](docs/CLIENT_TESTING_GUIDE.md)
 - [Architecture](docs/ARCHITECTURE.md)
 - [API](docs/API.md)
 - [Setup](docs/SETUP.md)
