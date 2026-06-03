@@ -46,6 +46,14 @@ Returns the signed-in user's company profile.
 
 Creates the signed-in user's company and owner profile after first sign-up.
 
+## `GET /api/health`
+
+Returns `200` when the app process is alive.
+
+## `GET /api/readiness`
+
+Returns `200` only when OpenAI and Supabase server/user-client environment variables are configured. Returns `503` while the app is still in demo/unconfigured mode.
+
 ## `GET /api/documents/[type]`
 
 Renders print-friendly HTML.
@@ -57,4 +65,4 @@ Examples:
 
 ## Hardening
 
-Current API guardrails include auth-required saved-job routes when Supabase is configured, company-scoped reads/writes, request size limits, and lightweight per-instance throttling. Before broad production rollout, add invite/team management, billing, durable distributed rate limiting, document escaping, backups, and monitoring.
+Current API guardrails include auth-required saved-job routes when Supabase is configured, RLS-enforced company-scoped reads/writes, request size limits, health/readiness endpoints, and lightweight per-instance throttling. Before broad production rollout, add invite/team management, billing, durable distributed rate limiting, document escaping, backups, and monitoring.

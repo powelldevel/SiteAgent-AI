@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getAuthContext } from "@/lib/auth";
 import { getRequestKey, rateLimit } from "@/lib/rate-limit";
-import { getSupabaseServerClient, isSupabaseServerConfigured } from "@/lib/supabase";
+import { getSupabaseUserClient, isSupabaseServerConfigured } from "@/lib/supabase";
 
 const quoteItemSchema = z.object({
   description: z.string().min(1).max(180),
@@ -71,19 +71,16 @@ export async function POST(request: Request) {
     });
   }
 
-  const supabase = getSupabaseServerClient();
-
-  if (!supabase) {
-    return NextResponse.json({
-      connected: false,
-      message: "Demo mode: Supabase is not connected yet.",
-    });
-  }
-
   const auth = await getAuthContext(request);
 
   if (!auth.ok) {
     return auth.response;
+  }
+
+  const supabase = getSupabaseUserClient(auth.accessToken);
+
+  if (!supabase) {
+    return NextResponse.json({ connected: true, error: "Supabase browser key is missing." }, { status: 500 });
   }
 
   const parsed = operationsPackSchema.safeParse(await request.json());

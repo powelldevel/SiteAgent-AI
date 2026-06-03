@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAuthContext } from "@/lib/auth";
-import { getSupabaseServerClient, isSupabaseServerConfigured } from "@/lib/supabase";
+import { getSupabaseUserClient, isSupabaseServerConfigured } from "@/lib/supabase";
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
@@ -15,20 +15,16 @@ export async function GET(request: Request) {
     });
   }
 
-  const supabase = getSupabaseServerClient();
-
-  if (!supabase) {
-    return NextResponse.json({
-      connected: false,
-      message: "Demo mode: Supabase is not connected yet.",
-      jobs: [],
-    });
-  }
-
   const auth = await getAuthContext(request);
 
   if (!auth.ok) {
     return auth.response;
+  }
+
+  const supabase = getSupabaseUserClient(auth.accessToken);
+
+  if (!supabase) {
+    return NextResponse.json({ connected: true, error: "Supabase browser key is missing." }, { status: 500 });
   }
 
   const { data, error } = await supabase

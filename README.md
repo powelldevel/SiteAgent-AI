@@ -29,6 +29,11 @@ npm run demo:check
 
 After production keys are configured, use `npm run pilot:check` with two pilot accounts to verify sign-up, onboarding, save, and tenant isolation.
 
+Production checks:
+
+- `/api/health` returns `200` when the app is alive.
+- `/api/readiness` returns `200` only after OpenAI and Supabase env vars are configured.
+
 ## What It Shows
 
 - AI-style WhatsApp job intake

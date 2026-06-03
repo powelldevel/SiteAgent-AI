@@ -9,6 +9,7 @@ export type AuthContext =
       companyId: string;
       name: string;
       role: string;
+      accessToken: string;
     }
   | {
       ok: false;
@@ -98,5 +99,6 @@ export async function getAuthContext(request: Request): Promise<AuthContext> {
     companyId: profile.company_id,
     name: profile.name ?? "User",
     role: profile.role ?? "owner",
+    accessToken: token,
   };
 }

@@ -32,6 +32,12 @@ if (!home.ok) {
   throw new Error(`Home page returned ${home.status}`);
 }
 
+const health = await request("/api/health");
+const readiness = await fetch(`${baseUrl}/api/readiness`);
+if (![200, 503].includes(readiness.status)) {
+  throw new Error(`Readiness returned unexpected status ${readiness.status}`);
+}
+
 const extraction = await request("/api/ai/extract", {
   method: "POST",
   headers: { "content-type": "application/json" },
@@ -60,6 +66,8 @@ console.log(
     {
       ok: true,
       baseUrl,
+      healthOk: Boolean(health.ok),
+      readinessStatus: readiness.status,
       extractionMode: extraction.mode,
       extractedTitle: extraction.job.title,
       openAiConfigured: Boolean(configStatus.openai?.configured),
