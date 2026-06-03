@@ -812,6 +812,9 @@ function InboxView({
             <div className="grid min-w-0 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]">
               <div className="min-w-0">
                 <p className="mb-2 text-sm font-black">Quote Draft</p>
+                <p className="mb-3 rounded border border-[#d8d0c0] bg-[#f9f6ef] p-2 text-xs font-bold leading-5 text-[#516158]">
+                  Draft pricing only. Review labour, materials, VAT, delivery, and dates before sending to a real customer.
+                </p>
                 <div className="overflow-hidden rounded border border-[#ded7ca]">
                   {quote.items.map((item) => (
                     <div

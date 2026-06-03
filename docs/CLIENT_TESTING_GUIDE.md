@@ -26,6 +26,10 @@ SiteGent helps contractors turn a messy customer message into:
 9. Click **Export Quote**.
 10. Click **Export Invoice**.
 
+## Important Safety Note
+
+Quote prices are drafts. Please review all prices, materials, labour, VAT, delivery fees, and dates before sending anything to a real customer.
+
 ## What To Look For
 
 While testing, please check:
@@ -37,7 +41,7 @@ While testing, please check:
 - Is the app easy to understand without help?
 - What feels confusing, slow, or missing?
 
-## Important Note
+## Demo Mode Note
 
 The current public link is safe for testing the workflow. Some features may still be in demo mode until live OpenAI and Supabase keys are fully configured.
 
@@ -52,7 +56,7 @@ If saving is not active yet, you can still test:
 
 ## Feedback To Send Back
 
-Please send:
+Please reply to the message where you received the SiteGent link and send:
 
 1. Your trade or business type.
 2. The type of jobs you usually receive on WhatsApp.

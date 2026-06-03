@@ -50,6 +50,7 @@ Production checks:
 More detail:
 
 - [Client testing guide](docs/CLIENT_TESTING_GUIDE.md)
+- [Pilot readiness checklist](docs/PILOT_READINESS_CHECKLIST.md)
 - [Architecture](docs/ARCHITECTURE.md)
 - [API](docs/API.md)
 - [Setup](docs/SETUP.md)
