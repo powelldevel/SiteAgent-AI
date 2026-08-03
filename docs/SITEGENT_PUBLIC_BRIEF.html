@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>SiteGent Public Brief</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: #f6f7f4;
+        color: #111814;
+        font-family: Arial, Helvetica, sans-serif;
+        line-height: 1.48;
+      }
+
+      main {
+        max-width: 920px;
+        margin: 0 auto;
+        background: #ffffff;
+        padding: 48px 56px 64px;
+      }
+
+      h1,
+      h2,
+      h3 {
+        margin: 0;
+        line-height: 1.12;
+      }
+
+      h1 {
+        font-size: 44px;
+        letter-spacing: -0.02em;
+      }
+
+      h2 {
+        margin-top: 34px;
+        padding-top: 26px;
+        border-top: 1px solid #dce4de;
+        font-size: 24px;
+      }
+
+      h3 {
+        margin-top: 18px;
+        font-size: 17px;
+      }
+
+      p {
+        margin: 9px 0 0;
+      }
+
+      ul,
+      ol {
+        margin: 10px 0 0 20px;
+        padding: 0;
+      }
+
+      li {
+        margin: 5px 0;
+      }
+
+      a {
+        color: #0f7a4d;
+        font-weight: 700;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 14px;
+        font-size: 13px;
+      }
+
+      th,
+      td {
+        border: 1px solid #dce4de;
+        padding: 10px;
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        background: #eef8f1;
+      }
+
+      .eyebrow {
+        color: #12804f;
+        font-weight: 900;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .subtitle {
+        color: #516158;
+        font-size: 18px;
+        margin-top: 14px;
+      }
+
+      .hero {
+        border-radius: 12px;
+        background: #101814;
+        color: #ffffff;
+        margin-top: 24px;
+        padding: 26px;
+      }
+
+      .hero p {
+        color: #dce8e1;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-top: 14px;
+      }
+
+      .card {
+        border: 1px solid #dce4de;
+        border-radius: 8px;
+        padding: 14px;
+        background: #fbfcfb;
+      }
+
+      .callout {
+        border: 1px solid #cfe6d8;
+        background: #f2fbf5;
+        border-radius: 8px;
+        padding: 14px 16px;
+        margin-top: 16px;
+      }
+
+      .warning {
+        border-color: #f0d99c;
+        background: #fff8e6;
+      }
+
+      .small {
+        color: #66736d;
+        font-size: 12px;
+      }
+
+      .tag {
+        display: inline-block;
+        border: 1px solid #cfe6d8;
+        border-radius: 999px;
+        background: #f2fbf5;
+        color: #166534;
+        font-size: 12px;
+        font-weight: 800;
+        margin: 10px 6px 0 0;
+        padding: 5px 9px;
+      }
+
+      @media print {
+        body {
+          background: #ffffff;
+        }
+
+        main {
+          max-width: none;
+          padding: 24px 34px;
+        }
+
+        h2,
+        h3,
+        table,
+        .card,
+        .callout {
+          page-break-inside: avoid;
+        }
+      }
+
+      @media (max-width: 720px) {
+        main {
+          padding: 30px 22px;
+        }
+
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p class="eyebrow">SiteGent</p>
+      <h1>WhatsApp Job Messages Into Quotes, Invoices, And Saved Jobs</h1>
+      <p class="subtitle">
+        SiteGent helps South African contractors turn messy customer WhatsApp messages into editable job cards, quote drafts, invoice drafts, and follow-up messages.
+      </p>
+
+      <div class="hero">
+        <h2 style="border: 0; margin: 0; padding: 0; color: #ffffff;">Paste the WhatsApp. Check the quote. Save the job.</h2>
+        <p>
+          Contractors already run their work from WhatsApp. SiteGent gives them a simple workspace that reads the customer message, uses their own price list, prepares the quote and invoice, and keeps the job saved privately for their company.
+        </p>
+        <p><strong>Live app:</strong> https://sitegent.vercel.app</p>
+      </div>
+
+      <h2>What SiteGent Is</h2>
+      <p>
+        SiteGent is a simple AI operations assistant for contractors, trades businesses, and small service teams. It is built for people who receive job requests through WhatsApp and need to quote quickly without losing track of the job.
+      </p>
+      <p>
+        It is not trying to be a heavy CRM. The goal is speed, clarity, and fewer admin mistakes.
+      </p>
+
+      <div>
+        <span class="tag">Contractors</span>
+        <span class="tag">WhatsApp-first</span>
+        <span class="tag">Quotes</span>
+        <span class="tag">Invoices</span>
+        <span class="tag">Price lists</span>
+        <span class="tag">South Africa</span>
+      </div>
+
+      <h2>The Problem</h2>
+      <p>
+        Many contractors receive work requests like this:
+      </p>
+      <div class="callout warning">
+        <p>
+          “Hi, I need 6 cubes river sand and 2 cubes 19mm stone delivered before Friday. Please quote me. My number is 082 555 0142.”
+        </p>
+      </div>
+      <p>
+        From that message, someone still has to understand the job, ask missing questions, estimate quantities, check prices, create a quote, save the customer details, and later create an invoice. That admin slows people down.
+      </p>
+
+      <h2>The Solution</h2>
+      <p>
+        SiteGent takes the messy message and prepares the working draft:
+      </p>
+      <ul>
+        <li>Customer details</li>
+        <li>Job card</li>
+        <li>Quote draft in Rand</li>
+        <li>Invoice draft</li>
+        <li>Customer follow-up message</li>
+        <li>Saved company job record</li>
+      </ul>
+      <p>
+        The contractor still reviews and approves the quote before sending anything to a real customer.
+      </p>
+
+      <h2>Who It Is For</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>Contractors</h3>
+          <p>Builders, plumbers, electricians, tilers, renovators, garden services, delivery suppliers, and service teams.</p>
+        </div>
+        <div class="card">
+          <h3>Admins And Estimators</h3>
+          <p>People who turn WhatsApp messages into quotes, invoices, and customer replies every day.</p>
+        </div>
+        <div class="card">
+          <h3>Small Teams</h3>
+          <p>Businesses that are not ready for expensive software but need a cleaner way to manage incoming jobs.</p>
+        </div>
+        <div class="card">
+          <h3>Pilot Partners</h3>
+          <p>Early users who want to test the product and shape it around real contractor workflows.</p>
+        </div>
+      </div>
+
+      <h2>What The App Has Today</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>What It Does</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Sign up and sign in</td>
+            <td>Users can create an account and return to their private workspace.</td>
+          </tr>
+          <tr>
+            <td>Company profile</td>
+            <td>Users can add their company name, phone, and address.</td>
+          </tr>
+          <tr>
+            <td>Company price list</td>
+            <td>Users can add common prices so SiteGent can quote using their own rates.</td>
+          </tr>
+          <tr>
+            <td>WhatsApp message input</td>
+            <td>User pastes a customer message or voice-note transcript.</td>
+          </tr>
+          <tr>
+            <td>AI job extraction</td>
+            <td>SiteGent reads the message and identifies customer, job type, location, urgency, missing details, and likely quote lines.</td>
+          </tr>
+          <tr>
+            <td>Editable quote</td>
+            <td>User can edit quote descriptions, quantities, and prices before saving.</td>
+          </tr>
+          <tr>
+            <td>Server-checked totals</td>
+            <td>The server recalculates quote totals and VAT so totals cannot be faked from the browser.</td>
+          </tr>
+          <tr>
+            <td>Saved jobs</td>
+            <td>User can save the customer, job card, quote, invoice, and message history.</td>
+          </tr>
+          <tr>
+            <td>Quote export</td>
+            <td>User can export a saved quote as a clean print-ready document.</td>
+          </tr>
+          <tr>
+            <td>Invoice export</td>
+            <td>User can export a saved invoice and mark it paid manually.</td>
+          </tr>
+          <tr>
+            <td>Payment request copy</td>
+            <td>User can copy a simple WhatsApp payment request for the customer.</td>
+          </tr>
+          <tr>
+            <td>Feedback</td>
+            <td>Pilot testers can send feedback from inside the app.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>Why This Matters</h2>
+      <ul>
+        <li>Contractors do not want more admin software. They want faster quoting.</li>
+        <li>WhatsApp is already where many jobs start.</li>
+        <li>Faster quote response can help win more work.</li>
+        <li>Using the company price list makes the AI more practical and less generic.</li>
+        <li>Saved jobs help small teams stop losing customer details in chat threads.</li>
+      </ul>
+
+      <h2>What Makes SiteGent Different</h2>
+      <p>
+        SiteGent is designed around the contractor's real day: messages, prices, quotes, invoices, and follow-ups. It is not a general chatbot and not a complicated CRM.
+      </p>
+      <ul>
+        <li>It starts with a WhatsApp message.</li>
+        <li>It uses the contractor's own prices.</li>
+        <li>It keeps the quote editable.</li>
+        <li>It saves the job privately by company.</li>
+        <li>It reminds users to review prices before sending.</li>
+      </ul>
+
+      <h2>Current Status</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Area</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Live product</td>
+            <td>Public link is live for early testing.</td>
+          </tr>
+          <tr>
+            <td>Backend</td>
+            <td>Connected to Supabase for accounts, company data, saved jobs, quotes, invoices, payments, and feedback.</td>
+          </tr>
+          <tr>
+            <td>AI</td>
+            <td>Connected to OpenAI for job extraction, with fallback if AI fails.</td>
+          </tr>
+          <tr>
+            <td>Security basics</td>
+            <td>Company data is scoped per company. One company cannot see another company's saved jobs in tests.</td>
+          </tr>
+          <tr>
+            <td>Recent QA</td>
+            <td>Authentication, tenant isolation, quote total tampering, duplicate saves, duplicate payments, and export safety were tested and patched.</td>
+          </tr>
+          <tr>
+            <td>Pilot stage</td>
+            <td>Ready for a small 5 to 15 user pilot, with close feedback and fixes.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>What We Are Testing Next</h2>
+      <ol>
+        <li>Can a contractor understand the app without help?</li>
+        <li>Can they create a company profile?</li>
+        <li>Can they add a few real prices?</li>
+        <li>Can they paste a real WhatsApp job message?</li>
+        <li>Is the quote useful enough after editing?</li>
+        <li>Can they save the job and export quote/invoice?</li>
+        <li>Would they use this again next week?</li>
+      </ol>
+
+      <h2>What We Need</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>Testers</h3>
+          <p>Contractors and admins willing to try SiteGent with real WhatsApp job messages and honest feedback.</p>
+        </div>
+        <div class="card">
+          <h3>Industry Feedback</h3>
+          <p>People who understand contractor pricing, quoting, invoicing, and WhatsApp workflows.</p>
+        </div>
+        <div class="card">
+          <h3>Technical Help</h3>
+          <p>Engineers/designers who can help make onboarding, exports, reliability, and security stronger.</p>
+        </div>
+        <div class="card">
+          <h3>Partners Or Investors</h3>
+          <p>People interested in helping bring practical AI tools to small service businesses in South Africa.</p>
+        </div>
+      </div>
+
+      <h2>What Is Not Final Yet</h2>
+      <p>
+        SiteGent is live, but it is still an early product. The core workflow works, but the team is still improving:
+      </p>
+      <ul>
+        <li>First-time onboarding</li>
+        <li>Bulk or pasted price-list setup</li>
+        <li>More professional quote and invoice designs</li>
+        <li>Better quote confidence labels</li>
+        <li>More reliable scheduling from natural language</li>
+        <li>Monitoring, support process, and deeper production hardening</li>
+      </ul>
+
+      <div class="callout warning">
+        <strong>Important:</strong> SiteGent prepares draft quotes. Contractors must review quantities, prices, VAT, delivery costs, and dates before sending anything to customers.
+      </div>
+
+      <h2>Simple Demo Flow</h2>
+      <ol>
+        <li>Open <strong>https://sitegent.vercel.app</strong>.</li>
+        <li>Create an account.</li>
+        <li>Create a company profile.</li>
+        <li>Add 2 to 5 real prices.</li>
+        <li>Paste a real WhatsApp job message.</li>
+        <li>Click Generate quote.</li>
+        <li>Edit the quote.</li>
+        <li>Save job and invoice.</li>
+        <li>Export the quote or invoice.</li>
+        <li>Send feedback.</li>
+      </ol>
+
+      <h2>Example Message To Test</h2>
+      <div class="callout">
+        <p>
+          Hi, I need 6 cubes river sand and 2 cubes 19mm stone delivered to Modimolle before Friday. Please send me a quote. My number is 082 555 0142.
+        </p>
+      </div>
+
+      <h2>Short Pitch</h2>
+      <p>
+        SiteGent helps contractors quote faster from WhatsApp. Paste the customer message, check the quote, save the job, and export the invoice.
+      </p>
+
+      <h2>Longer Pitch</h2>
+      <p>
+        SiteGent is a WhatsApp-first AI operations app for South African contractors. It turns customer job messages into editable job cards, quote drafts, invoice drafts, follow-up messages, and saved company records. It is built for small teams that need faster quoting without adopting a complicated CRM.
+      </p>
+
+      <h2>Contact And Next Step</h2>
+      <p>
+        If you are willing to test, invest, partner, or work on SiteGent, the best next step is to try the live app with one real job message and share what felt useful, confusing, or missing.
+      </p>
+      <p><strong>Live app:</strong> https://sitegent.vercel.app</p>
+
+      <p class="small">
+        This brief is safe to share publicly. It does not include private API keys, passwords, or secret configuration values.
+      </p>
+    </main>
+  </body>
+</html>

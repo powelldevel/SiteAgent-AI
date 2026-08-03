@@ -10,18 +10,19 @@ export async function GET() {
   const supabaseAnonConfigured = configured(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
   const supabaseServiceConfigured = configured(process.env.SUPABASE_SERVICE_ROLE_KEY);
 
-  return NextResponse.json({
-    openai: {
-      configured: openAiConfigured,
-      model: process.env.OPENAI_MODEL?.trim() || "gpt-5.4-mini",
-      required: ["OPENAI_API_KEY"],
+  return NextResponse.json(
+    {
+      openai: {
+        configured: openAiConfigured,
+      },
+      supabase: {
+        configured: supabaseUrlConfigured && supabaseAnonConfigured && supabaseServiceConfigured,
+      },
     },
-    supabase: {
-      configured: supabaseUrlConfigured && supabaseAnonConfigured && supabaseServiceConfigured,
-      urlConfigured: supabaseUrlConfigured,
-      anonKeyConfigured: supabaseAnonConfigured,
-      serviceRoleKeyConfigured: supabaseServiceConfigured,
-      required: ["NEXT_PUBLIC_SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_ANON_KEY", "SUPABASE_SERVICE_ROLE_KEY"],
+    {
+      headers: {
+        "cache-control": "no-store",
+      },
     },
-  });
+  );
 }

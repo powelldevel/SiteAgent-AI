@@ -177,7 +177,7 @@ export const sampleMessage =
 
 export const demoMessages = [
   {
-    label: "Sand delivery",
+    label: "Material delivery",
     body: "Morning, Kagiso here from Modimolle. I need 6 cubes river sand and 2 cubes 19mm stone delivered to Extension 8 before Friday. The slab team starts Saturday, so please quote including transport. My number is 074 618 3340.",
   },
   {

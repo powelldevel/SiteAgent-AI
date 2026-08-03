@@ -1,11 +1,11 @@
 import { z } from "zod";
-import type { ExtractedJob, QuoteItem, Urgency } from "./types";
+import type { ExtractedJob, PriceItem, QuoteItem, Urgency } from "./types";
 
 export const extractedJobSchema = z.object({
   customerName: z.string().min(1),
   phone: z.string().min(1),
   location: z.string().min(1),
-  jobType: z.string().min(1),
+  jobType: z.enum(["Plumbing", "Electrical", "Building", "Renovation", "HVAC", "Delivery", "Maintenance"]),
   title: z.string().min(1),
   materials: z.array(z.string()),
   estimatedDate: z.string().min(1),
@@ -133,6 +133,58 @@ export function inferJobFromMessage(message: string): ExtractedJob {
       location,
     )}. Please confirm the exact address and send photos so we can finalize your quote.`,
   };
+}
+
+export function applyCompanyPriceList(job: ExtractedJob, priceItems: PriceItem[]): ExtractedJob {
+  const activePrices = priceItems.filter((item) => item.active);
+
+  return {
+    ...job,
+    quoteItems: job.quoteItems.map((quoteItem) => {
+      const match = findPriceMatch(quoteItem.description, activePrices);
+
+      if (!match) {
+        const hasUsablePrice = Number.isFinite(quoteItem.unitPrice) && quoteItem.unitPrice > 0;
+
+        return {
+          ...quoteItem,
+          pricingSource: "ai_estimate",
+          confidence: hasUsablePrice ? "medium" : "low",
+          pricingStatus: hasUsablePrice ? "estimated" : "needs_review",
+        };
+      }
+
+      const total = Number((quoteItem.quantity * match.unitPrice).toFixed(2));
+
+      return {
+        ...quoteItem,
+        description: `${quoteItem.description} (${match.name})`,
+        unitPrice: match.unitPrice,
+        total,
+        pricingSource: "company_price_list",
+        confidence: "high",
+        pricingStatus: "matched",
+      };
+    }),
+  };
+}
+
+function findPriceMatch(description: string, priceItems: PriceItem[]) {
+  const haystack = normalize(description);
+
+  return priceItems.find((item) => {
+    const terms = [item.name, ...item.aliases].map(normalize).filter((term) => term.length >= 3);
+
+    return terms.some((term) => phraseMatches(haystack, term));
+  });
+}
+
+function phraseMatches(haystack: string, term: string) {
+  return ` ${haystack} `.includes(` ${term} `);
+}
+
+function normalize(value: string) {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 }
 
 export function titleCase(value: string) {

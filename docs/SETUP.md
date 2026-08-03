@@ -23,11 +23,19 @@ NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
 SITEGENT_DEMO_COMPANY_ID=
+SITEGENT_DEMO_MODE=false
 OPENAI_API_KEY=
-OPENAI_MODEL=gpt-5.4-mini
+OPENAI_MODEL=gpt-5.6-luna
+OPENAI_TIMEOUT_MS=20000
+OPENAI_MAX_RETRIES=2
+AI_EXTRACT_USER_LIMIT=20
+AI_EXTRACT_COMPANY_LIMIT=100
+AI_EXTRACT_WINDOW_SECONDS=3600
+SITEGENT_PILOT_ADMIN_EMAILS=you@example.com
 ```
 
 Copy `.env.example` to `.env.local`, then fill in only the services you want to test live. Empty values keep the app in local demo mode.
+Use a comma-separated list for `SITEGENT_PILOT_ADMIN_EMAILS`. Those signed-in users can see aggregate pilot counts across companies; all other users only see their own company activity.
 
 ## OpenAI
 
@@ -35,7 +43,7 @@ Create an API key in the OpenAI platform and paste it into `.env.local`:
 
 ```bash
 OPENAI_API_KEY=sk-...
-OPENAI_MODEL=gpt-5.4-mini
+OPENAI_MODEL=gpt-5.6-luna
 ```
 
 Restart `npm run dev` after changing `.env.local`. The Settings screen shows whether the app sees the key.

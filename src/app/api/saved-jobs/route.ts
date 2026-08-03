@@ -10,7 +10,7 @@ export async function GET(request: Request) {
   if (!isSupabaseServerConfigured()) {
     return NextResponse.json({
       connected: false,
-      message: "Demo mode: Supabase is not connected yet.",
+      message: "Saving is temporarily unavailable.",
       jobs: [],
     });
   }
@@ -40,8 +40,19 @@ export async function GET(request: Request) {
       scheduled_date,
       created_at,
       customers(name, phone),
-      quotes(total, status),
-      invoices(total, status)
+      messages(body, ai_summary, created_at),
+      quotes(
+        id,
+        quote_number,
+        subtotal,
+        tax,
+        total,
+        vat_registered,
+        vat_rate,
+        status,
+        quote_items(description, quantity, unit_price, total)
+      ),
+      invoices(id, invoice_number, total, status, due_date, created_at)
     `,
     )
     .eq("company_id", auth.companyId)

@@ -2,12 +2,30 @@ export type Urgency = "low" | "medium" | "high";
 export type JobStatus = "new" | "quoted" | "accepted" | "scheduled" | "in_progress" | "invoiced" | "paid";
 export type QuoteStatus = "draft" | "sent" | "accepted" | "declined";
 export type InvoiceStatus = "draft" | "sent" | "overdue" | "paid";
+export type QuotePricingStatus = "matched" | "estimated" | "needs_review";
 
 export type QuoteItem = {
   description: string;
   quantity: number;
   unitPrice: number;
   total: number;
+  pricingSource?: "company_price_list" | "ai_estimate" | "manual";
+  confidence?: "high" | "medium" | "low";
+  pricingStatus?: QuotePricingStatus;
+};
+
+export type PriceCategory = "material" | "labour" | "delivery" | "service" | "fee" | "other";
+
+export type PriceItem = {
+  id: string;
+  name: string;
+  category: PriceCategory;
+  unit: string;
+  unitPrice: number;
+  vatRate: number;
+  aliases: string[];
+  notes: string | null;
+  active: boolean;
 };
 
 export type ExtractedJob = {
@@ -60,6 +78,8 @@ export type Quote = {
   subtotal: number;
   tax: number;
   total: number;
+  vatRegistered?: boolean;
+  vatRate?: number;
   status: QuoteStatus;
   items: QuoteItem[];
 };

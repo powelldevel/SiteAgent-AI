@@ -1,0 +1,12 @@
+.git
+.github
+.next
+.vercel
+node_modules
+npm-debug.log*
+.env*
+!.env.example
+coverage
+docs
+github-profile
+
