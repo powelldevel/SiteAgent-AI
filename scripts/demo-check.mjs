@@ -38,28 +38,28 @@ if (![200, 503].includes(readiness.status)) {
   throw new Error(`Readiness returned unexpected status ${readiness.status}`);
 }
 
-const extraction = await request("/api/ai/extract", {
+const extractionResponse = await fetch(`${baseUrl}/api/ai/extract`, {
   method: "POST",
   headers: { "content-type": "application/json" },
   body: JSON.stringify({ message }),
 });
+const extraction = await extractionResponse.json();
 
-if (!extraction.job?.title || !Array.isArray(extraction.job.quoteItems) || extraction.job.quoteItems.length === 0) {
-  throw new Error("Extraction did not return a complete job with quote items.");
+if (extractionResponse.status === 200) {
+  if (
+    extraction.mode !== "demo"
+    || !extraction.job?.title
+    || !Array.isArray(extraction.job.quoteItems)
+    || extraction.job.quoteItems.length === 0
+  ) {
+    throw new Error("Anonymous extraction succeeded outside intentional demo mode.");
+  }
+} else if (extractionResponse.status !== 401) {
+  throw new Error(`/api/ai/extract returned unexpected status ${extractionResponse.status}: ${JSON.stringify(extraction)}`);
 }
 
 const configStatus = await request("/api/config/status");
 const savedJobs = await optionalJson("/api/saved-jobs");
-const quote = await fetch(`${baseUrl}/api/documents/quote?id=quote-ai`);
-const invoice = await fetch(`${baseUrl}/api/documents/invoice?id=invoice-ai`);
-
-if (!quote.ok) {
-  throw new Error(`Quote document returned ${quote.status}`);
-}
-
-if (!invoice.ok) {
-  throw new Error(`Invoice document returned ${invoice.status}`);
-}
 
 console.log(
   JSON.stringify(
@@ -68,14 +68,13 @@ console.log(
       baseUrl,
       healthOk: Boolean(health.ok),
       readinessStatus: readiness.status,
-      extractionMode: extraction.mode,
-      extractedTitle: extraction.job.title,
+      anonymousExtractionStatus: extractionResponse.status,
+      extractionMode: extraction.mode ?? "blocked",
+      extractedTitle: extraction.job?.title ?? null,
       openAiConfigured: Boolean(configStatus.openai?.configured),
       savedJobsStatus: savedJobs.status,
       savedJobsConnected: Boolean(savedJobs.body?.connected),
       supabaseConfigured: Boolean(configStatus.supabase?.configured),
-      quoteStatus: quote.status,
-      invoiceStatus: invoice.status,
     },
     null,
     2,

@@ -1,0 +1,650 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>SiteGent App Context and Prompt Pack</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: #f7f8fa;
+        color: #101814;
+        font-family: Arial, Helvetica, sans-serif;
+        line-height: 1.48;
+      }
+
+      main {
+        max-width: 920px;
+        margin: 0 auto;
+        background: #ffffff;
+        padding: 48px 56px 64px;
+      }
+
+      h1,
+      h2,
+      h3 {
+        line-height: 1.12;
+        margin: 0;
+      }
+
+      h1 {
+        font-size: 42px;
+        letter-spacing: -0.02em;
+      }
+
+      h2 {
+        border-top: 1px solid #dbe3df;
+        margin-top: 34px;
+        padding-top: 26px;
+        font-size: 24px;
+      }
+
+      h3 {
+        margin-top: 18px;
+        font-size: 16px;
+      }
+
+      p {
+        margin: 8px 0 0;
+      }
+
+      ul,
+      ol {
+        margin: 10px 0 0 20px;
+        padding: 0;
+      }
+
+      li {
+        margin: 5px 0;
+      }
+
+      code {
+        background: #eef2f0;
+        border-radius: 4px;
+        padding: 2px 5px;
+        font-family: Consolas, Monaco, monospace;
+        font-size: 0.92em;
+      }
+
+      pre {
+        white-space: pre-wrap;
+        background: #101814;
+        color: #f8faf9;
+        padding: 16px;
+        border-radius: 8px;
+        font-size: 13px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 12px;
+        font-size: 13px;
+      }
+
+      th,
+      td {
+        border: 1px solid #dbe3df;
+        padding: 9px 10px;
+        vertical-align: top;
+        text-align: left;
+      }
+
+      th {
+        background: #eef7f1;
+      }
+
+      .eyebrow {
+        color: #1f8a5b;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .subtitle {
+        color: #516158;
+        font-size: 18px;
+        margin-top: 14px;
+      }
+
+      .callout {
+        border: 1px solid #cfe6d8;
+        background: #f2fbf5;
+        border-radius: 8px;
+        padding: 14px 16px;
+        margin-top: 16px;
+      }
+
+      .warning {
+        border-color: #f0d99c;
+        background: #fff8e6;
+      }
+
+      .danger {
+        border-color: #f1b4b4;
+        background: #fff1f1;
+      }
+
+      .small {
+        color: #66736d;
+        font-size: 12px;
+      }
+
+      .page-break {
+        page-break-before: always;
+      }
+
+      @media print {
+        body {
+          background: #ffffff;
+        }
+
+        main {
+          max-width: none;
+          padding: 24px 34px;
+        }
+
+        h2 {
+          page-break-after: avoid;
+        }
+
+        table,
+        pre,
+        .callout {
+          page-break-inside: avoid;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p class="eyebrow">SiteGent context pack</p>
+      <h1>Everything ChatGPT Needs To Understand SiteGent</h1>
+      <p class="subtitle">
+        A compact product, technical, security, UX, and prompt briefing for improving SiteGent without turning it into a bloated CRM.
+      </p>
+      <p class="small">Generated for Kgotso Powell on 13 June 2026. No API keys, tokens, or secrets are included.</p>
+
+      <div class="callout">
+        <strong>One-line explanation:</strong> SiteGent is a WhatsApp-first AI operations app for South African contractors. It turns messy customer job messages into editable job cards, quotes, invoices, follow-up messages, and saved company job records using the contractor's own price list.
+      </div>
+
+      <h2>1. Product Goal</h2>
+      <p>
+        The goal is to help busy contractors and admin staff quote faster from WhatsApp job requests. The app should reduce thinking, typing, and admin work. It should not become a heavy CRM.
+      </p>
+      <ul>
+        <li>Primary user: contractor, trades business owner, office admin, or estimator.</li>
+        <li>Market: South African contractors and service businesses using WhatsApp daily.</li>
+        <li>Main promise: paste a customer message, review a quote, save the job, export quote or invoice.</li>
+        <li>Important rule: SiteGent drafts prices, but a human must review before sending to a customer.</li>
+      </ul>
+
+      <h2>2. What The App Has Now</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Area</th>
+            <th>Current Capability</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Public app</td>
+            <td>Live at <code>https://sitegent.vercel.app</code>.</td>
+          </tr>
+          <tr>
+            <td>Authentication</td>
+            <td>Supabase Auth sign-up, sign-in, session handling, and company onboarding.</td>
+          </tr>
+          <tr>
+            <td>Company profile</td>
+            <td>User can create a company workspace with name, phone, and address.</td>
+          </tr>
+          <tr>
+            <td>Pricing</td>
+            <td>User can add, edit, delete, and activate price-list items. Price items include category, unit, price, VAT rate, aliases, notes, and active status.</td>
+          </tr>
+          <tr>
+            <td>AI quote extraction</td>
+            <td>OpenAI extracts the customer, phone, location, job type, urgency, materials, quote lines, and follow-up message from a WhatsApp-style message.</td>
+          </tr>
+          <tr>
+            <td>Fallback extraction</td>
+            <td>If live AI fails, the app falls back to deterministic local extraction so the flow still works.</td>
+          </tr>
+          <tr>
+            <td>Quote editor</td>
+            <td>Generated quote lines are editable. Users can add/remove lines and change description, quantity, and unit price.</td>
+          </tr>
+          <tr>
+            <td>Server-side totals</td>
+            <td>The server recomputes quote item totals, VAT, subtotal, and final invoice total before saving, preventing browser total tampering.</td>
+          </tr>
+          <tr>
+            <td>Saved jobs</td>
+            <td>Saving creates customer, job, message, quote, quote items, invoice, and AI review record in Supabase.</td>
+          </tr>
+          <tr>
+            <td>Invoices</td>
+            <td>Saved jobs create draft invoices. Users can export invoice HTML, copy a payment request, and mark invoices paid.</td>
+          </tr>
+          <tr>
+            <td>Exports</td>
+            <td>Saved quotes and invoices can be exported as print-ready HTML that users can print or save as PDF.</td>
+          </tr>
+          <tr>
+            <td>Dashboard</td>
+            <td>Shows saved jobs, draft invoices, paid invoices, and quoted value.</td>
+          </tr>
+          <tr>
+            <td>Feedback</td>
+            <td>Users can send pilot feedback from Settings. Feedback is stored as an app event.</td>
+          </tr>
+          <tr>
+            <td>Analytics</td>
+            <td>Tracks product events like quote generated, job saved, quote exported, invoice exported, payment recorded, and feedback sent.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>3. Current App Screens</h2>
+      <ul>
+        <li><strong>Dashboard:</strong> simple workspace overview with saved job and invoice metrics.</li>
+        <li><strong>Quote Assistant:</strong> paste WhatsApp message, generate quote, edit line items, review job card, invoice draft, and follow-up message.</li>
+        <li><strong>Pricing:</strong> add company price-list items so quotes use the contractor's own rates.</li>
+        <li><strong>Saved Jobs:</strong> view saved jobs, quotes, quote items, invoice status, and export saved quote/invoice.</li>
+        <li><strong>Invoices:</strong> view saved invoices, export invoice, copy payment request, mark invoice paid.</li>
+        <li><strong>Settings:</strong> sign up, sign in, create company profile, check live services, view pilot analytics, send feedback, clear local session.</li>
+      </ul>
+
+      <h2>4. Ideal User Journey</h2>
+      <ol>
+        <li>User opens SiteGent.</li>
+        <li>User signs up or signs in.</li>
+        <li>User creates company profile.</li>
+        <li>User adds 2 to 5 common prices in Pricing.</li>
+        <li>User opens Quote Assistant.</li>
+        <li>User pastes a real WhatsApp job message.</li>
+        <li>User clicks Generate quote.</li>
+        <li>User checks job card, quote lines, invoice draft, and follow-up message.</li>
+        <li>User edits prices if needed.</li>
+        <li>User saves the job and invoice.</li>
+        <li>User exports quote or invoice, then sends it to the customer through WhatsApp.</li>
+        <li>User records payment manually when paid.</li>
+      </ol>
+
+      <h2>5. Technology Stack</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Layer</th>
+            <th>Stack</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Frontend</td>
+            <td>Next.js App Router, React 19, TypeScript, Tailwind-style classes, Lucide icons.</td>
+          </tr>
+          <tr>
+            <td>Backend</td>
+            <td>Next.js route handlers under <code>src/app/api</code>.</td>
+          </tr>
+          <tr>
+            <td>Database/Auth</td>
+            <td>Supabase Auth and Supabase Postgres.</td>
+          </tr>
+          <tr>
+            <td>AI</td>
+            <td>OpenAI Responses API with Zod structured extraction and fallback logic.</td>
+          </tr>
+          <tr>
+            <td>Validation</td>
+            <td>Zod schemas on API payloads.</td>
+          </tr>
+          <tr>
+            <td>Deployment</td>
+            <td>Vercel production deployment.</td>
+          </tr>
+          <tr>
+            <td>Tests/checks</td>
+            <td><code>npm run lint</code>, <code>npm run build</code>, <code>npm run demo:check</code>, <code>npm run pilot:check</code>, plus manual adversarial QA scripts.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>6. Main API Routes</h2>
+      <ul>
+        <li><code>/api/ai/extract</code>: extracts a job and quote from a customer message.</li>
+        <li><code>/api/auth/signup</code>: creates Supabase account and optionally company profile.</li>
+        <li><code>/api/auth/signin</code>: signs in and returns session.</li>
+        <li><code>/api/auth/me</code>: returns current user profile.</li>
+        <li><code>/api/auth/onboard</code>: creates company profile for an existing user.</li>
+        <li><code>/api/pricing</code>: gets, creates, updates, and deletes price-list items.</li>
+        <li><code>/api/operations/save</code>: saves the operations pack: customer, job, message, quote, quote items, invoice, and AI task.</li>
+        <li><code>/api/saved-jobs</code>: lists saved company jobs.</li>
+        <li><code>/api/invoices</code>: lists invoices and updates invoice status.</li>
+        <li><code>/api/documents/[type]</code>: renders saved quote or invoice export HTML.</li>
+        <li><code>/api/payments</code>: records manual payment and marks invoice paid.</li>
+        <li><code>/api/feedback</code>: records pilot feedback.</li>
+        <li><code>/api/analytics</code>: tracks and reads app usage events.</li>
+        <li><code>/api/health</code>, <code>/api/readiness</code>, <code>/api/config/status</code>: service status checks.</li>
+      </ul>
+
+      <h2>7. Database Tables</h2>
+      <ul>
+        <li><code>companies</code>: company workspace details.</li>
+        <li><code>users</code>: app profile linked to Supabase auth user and company.</li>
+        <li><code>customers</code>: customer details extracted from WhatsApp messages.</li>
+        <li><code>workers</code>: future worker records.</li>
+        <li><code>jobs</code>: saved job cards with status, urgency, location, and scheduled date.</li>
+        <li><code>quotes</code>: saved quote records scoped to company.</li>
+        <li><code>quote_items</code>: line items for each quote.</li>
+        <li><code>price_items</code>: company price-list items.</li>
+        <li><code>invoices</code>: draft/sent/paid/overdue/cancelled invoices.</li>
+        <li><code>messages</code>: original WhatsApp-style customer messages and AI summaries.</li>
+        <li><code>payments</code>: manual payment records.</li>
+        <li><code>ai_tasks</code>: AI outputs, usage events, analytics, and feedback records.</li>
+      </ul>
+
+      <h2>8. Security State</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Security Area</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Secrets</td>
+            <td>API keys should stay in Vercel/Supabase/OpenAI dashboards and local <code>.env.local</code>. They must not be pasted into docs, screenshots, public repos, or ChatGPT prompts.</td>
+          </tr>
+          <tr>
+            <td>Auth required</td>
+            <td>Saved jobs, pricing, invoices, payments, analytics, and feedback require signed-in user context.</td>
+          </tr>
+          <tr>
+            <td>Tenant isolation</td>
+            <td>Companies are scoped by <code>company_id</code>. Tests confirmed one company cannot see another company's saved jobs or export invoices.</td>
+          </tr>
+          <tr>
+            <td>RLS</td>
+            <td>Supabase Row Level Security is enabled across exposed company tables.</td>
+          </tr>
+          <tr>
+            <td>XSS/export safety</td>
+            <td>Quote and invoice export HTML escapes customer-provided text. Script injection test passed.</td>
+          </tr>
+          <tr>
+            <td>Money tampering</td>
+            <td>Recently fixed. Server recomputes item totals, VAT, and final total before saving.</td>
+          </tr>
+          <tr>
+            <td>Duplicate save</td>
+            <td>Recently fixed. Duplicate quote save is blocked with a conflict response.</td>
+          </tr>
+          <tr>
+            <td>Duplicate payment</td>
+            <td>Recently fixed. If invoice is already paid, payment endpoint returns an already-paid response instead of creating another payment.</td>
+          </tr>
+          <tr>
+            <td>Remaining risk</td>
+            <td>Sessions are stored client-side in local storage. Rate limiting is in-memory. Save flow is multi-step and should eventually become transactional.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>9. Recent QA Results</h2>
+      <ul>
+        <li><code>npm run lint</code>: passed.</li>
+        <li><code>npm run build</code>: passed.</li>
+        <li>Local malicious QA: 19 passed, 0 failed after fixes.</li>
+        <li>Live smoke test: passed against <code>https://sitegent.vercel.app</code>.</li>
+        <li>Live malicious QA: 6 passed, 0 failed after deployment.</li>
+        <li>Production deployment completed and was aliased to <code>https://sitegent.vercel.app</code>.</li>
+      </ul>
+
+      <h2>10. What Is Working Well</h2>
+      <ul>
+        <li>The product is focused on a real pain: WhatsApp job messages and contractor quoting.</li>
+        <li>The flow is clearer now: paste message, generate quote, edit, save, export.</li>
+        <li>Price lists make the app more trustworthy than generic AI quoting.</li>
+        <li>Saved jobs are company-private.</li>
+        <li>Quote/invoice exports exist and can be used in a pilot.</li>
+        <li>The app has a working live URL and real backend services.</li>
+        <li>The app is simple enough for a 5 to 15 user pilot.</li>
+      </ul>
+
+      <h2>11. What Is Still Missing</h2>
+      <ul>
+        <li><strong>Real transactional save:</strong> save currently creates multiple rows in sequence. It should become one database function or transaction to avoid partial saves if one insert fails.</li>
+        <li><strong>Better onboarding:</strong> users need a very simple first-run setup: company profile, add first prices, paste first message.</li>
+        <li><strong>Better price-list importing:</strong> contractors may prefer paste/import price list from WhatsApp, Excel, or notes instead of adding one-by-one.</li>
+        <li><strong>Quote trust indicators:</strong> every line should clearly say matched price, guessed price, or needs human check.</li>
+        <li><strong>Scheduling:</strong> text like "tomorrow morning" is not a real date yet. Scheduling is basic.</li>
+        <li><strong>Durable rate limiting:</strong> current rate limit is in-memory, which is fine for a tiny pilot but not enough for scale.</li>
+        <li><strong>Observability:</strong> needs error tracking, logs, and simple admin visibility into failures.</li>
+        <li><strong>Support process:</strong> for testers, there should be a WhatsApp number or form for quick bug reports.</li>
+        <li><strong>Payments:</strong> payment tracking is manual. No Stripe/PayFast/Yoco integration yet.</li>
+      </ul>
+
+      <h2>12. What Could Go Wrong</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Risk</th>
+            <th>What Could Happen</th>
+            <th>Fix</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>AI wrong price</td>
+            <td>Customer gets a bad quote if user trusts draft blindly.</td>
+            <td>Keep human review warning. Show matched vs guessed lines. Encourage price list setup.</td>
+          </tr>
+          <tr>
+            <td>Bad onboarding</td>
+            <td>Tester signs up but does not understand company profile or pricing.</td>
+            <td>Make setup wizard: Step 1 profile, Step 2 add prices, Step 3 paste message.</td>
+          </tr>
+          <tr>
+            <td>Partial save</td>
+            <td>Customer/job created but quote/invoice fails.</td>
+            <td>Move save into a database transaction or RPC function.</td>
+          </tr>
+          <tr>
+            <td>OpenAI cost</td>
+            <td>Users spam extraction and burn credits.</td>
+            <td>Limit requests per user/company and cache common extraction failures.</td>
+          </tr>
+          <tr>
+            <td>Privacy issue</td>
+            <td>Contractor pastes sensitive customer data.</td>
+            <td>Add clear privacy copy, avoid logging secrets, use RLS, and limit admin access.</td>
+          </tr>
+          <tr>
+            <td>Weak feedback loop</td>
+            <td>You do not know why testers stop using it.</td>
+            <td>Add one-click feedback and personally WhatsApp each tester after first use.</td>
+          </tr>
+          <tr>
+            <td>Too many features</td>
+            <td>App becomes confusing and looks like a CRM.</td>
+            <td>Only build features that make quoting faster or safer for first testers.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>13. Best Next Features</h2>
+      <ol>
+        <li><strong>First-run setup wizard:</strong> Make the app say exactly what to do next.</li>
+        <li><strong>Paste price list:</strong> Let user paste lines like "Labour R950/day, callout R450, sealant R150" and create price items automatically.</li>
+        <li><strong>Quote confidence labels:</strong> Matched price, estimated price, missing detail.</li>
+        <li><strong>Better export design:</strong> More professional quote/invoice documents with company info, terms, and payment details.</li>
+        <li><strong>Tester feedback tracker:</strong> See which testers signed up, added prices, generated quote, saved job, exported invoice.</li>
+        <li><strong>Transaction-safe save:</strong> Save all operation rows in one database transaction.</li>
+      </ol>
+
+      <h2>14. What To Avoid For Now</h2>
+      <ul>
+        <li>Full CRM pipelines.</li>
+        <li>Complex worker scheduling.</li>
+        <li>Advanced accounting integrations.</li>
+        <li>Multi-branch enterprise permissions.</li>
+        <li>Too many dashboards and charts.</li>
+        <li>Automated final quote sending without human approval.</li>
+        <li>Payments integration before users prove they want to invoice from SiteGent.</li>
+      </ul>
+
+      <h2>15. Strong Prompt To Paste Into ChatGPT</h2>
+      <pre>You are a senior startup product engineer and SaaS UX designer.
+
+I am building SiteGent, a WhatsApp-first AI operations app for South African contractors.
+
+SiteGent turns messy customer WhatsApp job messages into:
+- editable job cards
+- quote drafts in ZAR
+- invoice drafts
+- customer follow-up messages
+- saved company-private operations packs
+- quote drafts that use the contractor's own price list
+
+The target user is a busy contractor, trades business owner, estimator, or admin person. They work from WhatsApp and do not want a heavy CRM. The app must stay simple.
+
+Current app:
+- Live at https://sitegent.vercel.app
+- Next.js, React, TypeScript, Supabase Auth/Postgres, OpenAI
+- Users can sign up/sign in
+- Users create a company profile
+- Users add company price-list items
+- Users paste a WhatsApp message
+- AI extracts job details and quote lines
+- Users edit quote lines
+- Server recomputes totals and VAT before saving
+- Saving creates customer, job, message, quote, quote items, invoice, and AI review record
+- Users can view saved jobs
+- Users can export quote and invoice
+- Users can copy payment request and mark invoice paid
+- Basic analytics and feedback exist
+- Company data is private per company using Supabase RLS
+
+Important rules:
+- Keep it simple.
+- Optimize for contractors who use WhatsApp.
+- Quotes must be fast but always reviewed by a human.
+- Price lists are important.
+- Saved jobs must stay private per company.
+- Do not expose secrets.
+- Do not add heavy CRM features too early.
+- Prioritize the shortest path to 5 to 15 happy testers.
+
+Analyze SiteGent and tell me:
+1. What should the app explain better on the first screen?
+2. What is confusing for a first-time contractor?
+3. What should the setup flow be?
+4. How should price-list setup work in the simplest version?
+5. How can quote trust be improved without adding complexity?
+6. What should the quote/invoice export include?
+7. What should I measure from my first 15 testers?
+8. What feature should I build next week?
+9. What should I avoid building?
+10. Give me exact UI copy, button labels, empty states, and WhatsApp tester messages.</pre>
+
+      <h2>16. Prompt For Better UI Copy</h2>
+      <pre>You are a world-class SaaS copywriter for simple contractor tools.
+
+Rewrite SiteGent's UI copy so a nontechnical contractor understands it in 5 seconds.
+
+The product is:
+"Paste the WhatsApp. Check the quote. Save the job."
+
+Avoid AI buzzwords. Avoid CRM language. Use simple South African contractor-friendly words.
+
+Write:
+- hero headline
+- subheadline
+- main CTA
+- setup checklist labels
+- empty states for pricing, saved jobs, invoices
+- warning copy that prices are drafts
+- success messages
+- error messages
+- WhatsApp message inviting testers</pre>
+
+      <h2>17. Prompt For Product Roadmap</h2>
+      <pre>You are a YC startup advisor.
+
+Create a roadmap for SiteGent from now to 15 happy testers.
+
+Context:
+- WhatsApp-first quote assistant for South African contractors
+- Current features: auth, company profile, price list, AI extraction, editable quotes, saved jobs, invoices, exports, manual payment tracking, feedback
+- Known gaps: onboarding, price-list import, transaction-safe save, better quote trust, scheduling, observability
+
+Make the roadmap brutally practical:
+- 3 things to do this week
+- 3 things to do next month
+- 3 things to avoid
+- exact tester interview questions
+- success metrics for a 15-user pilot
+- kill criteria if users do not care</pre>
+
+      <h2>18. Prompt For Security Review</h2>
+      <pre>You are a malicious QA engineer and security reviewer.
+
+Review this app concept:
+SiteGent is a Next.js + Supabase + OpenAI SaaS for contractors. Users sign up, create a company profile, add price-list items, paste WhatsApp job messages, generate/edit quotes, save jobs, export invoices, and record payments.
+
+Security model:
+- Supabase Auth
+- Company-scoped rows with company_id
+- RLS on company tables
+- API routes require bearer token for saved jobs/pricing/invoices/payments
+- Server recomputes quote totals before saving
+- Exports escape HTML
+
+Find:
+- auth risks
+- tenant isolation risks
+- data loss risks
+- payment/invoice risks
+- AI prompt injection risks
+- privacy risks
+- abuse/cost risks
+
+Give fixes ranked P0, P1, P2. Keep recommendations suitable for a 15-user pilot, not enterprise scale.</pre>
+
+      <h2>19. The Shortest Honest Pitch</h2>
+      <div class="callout">
+        <p><strong>Simple pitch:</strong> SiteGent helps contractors turn WhatsApp job messages into quote drafts, invoices, and follow-up messages using their own price list. Paste the message, check the quote, save the job.</p>
+      </div>
+      <div class="callout warning">
+        <p><strong>Important warning:</strong> SiteGent is not supposed to send final prices blindly. It drafts the quote so the contractor can review, edit, and approve it.</p>
+      </div>
+
+      <h2>20. Best Current Testing Plan</h2>
+      <ol>
+        <li>Test yourself with one account.</li>
+        <li>Add 5 realistic prices.</li>
+        <li>Paste 3 real WhatsApp job messages.</li>
+        <li>Generate quotes and edit bad lines.</li>
+        <li>Save jobs and export quote/invoice.</li>
+        <li>Create a second account and confirm it cannot see the first account's jobs.</li>
+        <li>Invite 5 testers first.</li>
+        <li>Watch whether they can sign up, add prices, generate quote, save job, export quote/invoice.</li>
+        <li>Fix the biggest confusion.</li>
+        <li>Then invite the next 10 testers.</li>
+      </ol>
+
+      <p class="small">
+        End of document. Use this PDF as context when asking ChatGPT, Claude, designers, engineers, or testers to help improve SiteGent.
+      </p>
+    </main>
+  </body>
+</html>

@@ -2,18 +2,29 @@
   "name": "sitegent-app",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
     "demo:check": "node scripts/demo-check.mjs",
-    "pilot:check": "node scripts/live-pilot-check.mjs"
+    "pilot:check": "node scripts/live-pilot-check.mjs",
+    "numbering:check": "node scripts/document-numbering-check.mjs",
+    "ai:security:check": "node scripts/ai-security-check.mjs",
+    "vat:check": "node scripts/vat-settings-check.mjs",
+    "analytics:check": "node --experimental-strip-types scripts/pilot-analytics-check.mts",
+    "observability:check": "node scripts/observability-check.mjs",
+    "auth:check": "node scripts/auth-onboarding-check.mjs",
+    "pricing:check": "node --experimental-strip-types scripts/price-list-parser-check.mts",
+    "confidence:check": "node --experimental-strip-types scripts/quote-confidence-check.mts",
+    "llm:eval": "node --experimental-strip-types scripts/llm-eval.mts",
+    "llm:eval:live": "node --experimental-strip-types scripts/llm-eval.mts --live"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.106.0",
     "lucide-react": "^1.16.0",
-    "next": "16.2.6",
+    "next": "^16.2.12",
     "openai": "^6.38.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",
@@ -25,8 +36,12 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.2.6",
+    "eslint-config-next": "16.2.12",
     "tailwindcss": "^4",
     "typescript": "^5"
+  },
+  "overrides": {
+    "postcss": "8.5.25",
+    "sharp": "0.35.3"
   }
 }

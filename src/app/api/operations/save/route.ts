@@ -1,14 +1,20 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getAuthContext } from "@/lib/auth";
+import { recordOperationalEvent } from "@/lib/observability";
+import { recordPilotEvent } from "@/lib/pilot-analytics";
 import { getRequestKey, rateLimit } from "@/lib/rate-limit";
 import { getSupabaseUserClient, isSupabaseServerConfigured } from "@/lib/supabase";
+import { calculateVatTotals, DEFAULT_VAT_RATE, roundMoney } from "@/lib/vat";
 
 const quoteItemSchema = z.object({
   description: z.string().min(1).max(180),
   quantity: z.number().positive().max(10000),
   unitPrice: z.number().nonnegative(),
   total: z.number().nonnegative(),
+  pricingSource: z.enum(["company_price_list", "ai_estimate", "manual"]).optional(),
+  confidence: z.enum(["high", "medium", "low"]).optional(),
+  pricingStatus: z.enum(["matched", "estimated", "needs_review"]).optional(),
 });
 
 const operationsPackSchema = z.object({
@@ -29,7 +35,7 @@ const operationsPackSchema = z.object({
     followUpMessage: z.string().min(1).max(1200),
   }),
   quote: z.object({
-    quoteNumber: z.string().min(1).max(80),
+    quoteNumber: z.string().max(80).optional(),
     subtotal: z.number().nonnegative(),
     tax: z.number().nonnegative(),
     total: z.number().nonnegative(),
@@ -37,7 +43,12 @@ const operationsPackSchema = z.object({
   }),
 });
 
-type IdRow = { id: string };
+function normalizeQuoteItems(items: z.infer<typeof quoteItemSchema>[]) {
+  return items.map((item) => ({
+    ...item,
+    total: roundMoney(item.quantity * item.unitPrice),
+  }));
+}
 
 function dateOrNull(value: string) {
   if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
@@ -53,21 +64,24 @@ function dueDate() {
   return date.toISOString().slice(0, 10);
 }
 
-function documentSuffix() {
-  return Date.now().toString().slice(-8);
-}
-
 export async function POST(request: Request) {
   const limited = rateLimit(`save:${getRequestKey(request)}`, { limit: 60, windowMs: 60_000 });
 
   if (limited) {
+    await recordOperationalEvent({
+      route: "/api/operations/save",
+      action: "save_operations_pack",
+      status: "blocked",
+      message: "Save rate limit exceeded.",
+      metadata: { httpStatus: 429 },
+    });
     return limited;
   }
 
   if (!isSupabaseServerConfigured()) {
     return NextResponse.json({
       connected: false,
-      message: "Demo mode: Supabase is not connected yet.",
+      message: "Saving is temporarily unavailable.",
     });
   }
 
@@ -80,139 +94,156 @@ export async function POST(request: Request) {
   const supabase = getSupabaseUserClient(auth.accessToken);
 
   if (!supabase) {
+    await recordOperationalEvent({
+      userId: auth.userId,
+      companyId: auth.companyId,
+      route: "/api/operations/save",
+      action: "save_operations_pack",
+      status: "failed",
+      message: "Supabase user client is unavailable.",
+      metadata: { httpStatus: 500 },
+    });
     return NextResponse.json({ connected: true, error: "Supabase browser key is missing." }, { status: 500 });
   }
 
   const parsed = operationsPackSchema.safeParse(await request.json());
 
   if (!parsed.success) {
-    return NextResponse.json({ error: "Operations pack is incomplete.", issues: parsed.error.flatten() }, { status: 400 });
+    await recordOperationalEvent({
+      userId: auth.userId,
+      companyId: auth.companyId,
+      route: "/api/operations/save",
+      action: "save_operations_pack",
+      status: "failed",
+      message: "Save payload validation failed.",
+      metadata: { httpStatus: 400 },
+    });
+    return NextResponse.json({ error: "Job record is incomplete.", issues: parsed.error.flatten() }, { status: 400 });
   }
 
   const pack = parsed.data;
 
   try {
-    const companyId = auth.companyId;
-    const suffix = documentSuffix();
+    const normalizedItems = normalizeQuoteItems(pack.quote.items);
+    const { data: companyData, error: companyError } = await supabase
+      .from("companies")
+      .select("vat_registered,vat_rate")
+      .eq("id", auth.companyId)
+      .maybeSingle();
 
-    const { data: customerData, error: customerError } = await supabase
-      .from("customers")
-      .insert({
-        company_id: companyId,
-        name: pack.job.customerName,
-        phone: pack.job.phone,
-        address: pack.job.location,
-      })
-      .select("id")
-      .single();
-    const customer = customerData as IdRow;
+    if (companyError || !companyData) {
+      throw new Error("Could not load the company VAT settings.");
+    }
 
-    if (customerError) throw new Error(customerError.message);
-
-    const { data: jobData, error: jobError } = await supabase
-      .from("jobs")
-      .insert({
-        company_id: companyId,
-        customer_id: customer.id,
-        title: pack.job.title,
-        description: pack.job.summary,
-        location: pack.job.location,
-        status: "quoted",
-        urgency: pack.job.urgency,
-        scheduled_date: dateOrNull(pack.job.estimatedDate),
-      })
-      .select("id")
-      .single();
-    const job = jobData as IdRow;
-
-    if (jobError) throw new Error(jobError.message);
-
-    const { error: messageError } = await supabase.from("messages").insert({
-      company_id: companyId,
-      customer_id: customer.id,
-      job_id: job.id,
-      channel: "whatsapp",
-      direction: "inbound",
-      body: pack.originalMessage,
-      ai_summary: pack.job.summary,
+    const company = companyData as { vat_registered: boolean; vat_rate: number | string };
+    const totals = calculateVatTotals(normalizedItems, {
+      vatRegistered: company.vat_registered,
+      vatRate: Number(company.vat_rate ?? DEFAULT_VAT_RATE),
+    });
+    const normalizedQuote = {
+      ...totals,
+      items: normalizedItems,
+    };
+    const { data, error } = await supabase.rpc("save_operations_pack", {
+      p_original_message: pack.originalMessage,
+      p_extraction_mode: pack.extractionMode,
+      p_job: pack.job,
+      p_quote: normalizedQuote,
+      p_subtotal: totals.subtotal,
+      p_tax: totals.tax,
+      p_total: totals.total,
+      p_scheduled_date: dateOrNull(pack.job.estimatedDate),
+      p_due_date: dueDate(),
     });
 
-    if (messageError) throw new Error(messageError.message);
+    if (error) {
+      const httpStatus = error.code === "23505" ? 409
+        : error.code === "42501" ? 403
+          : ["22P02", "23502", "23503", "23514"].includes(error.code) ? 400
+            : 500;
 
-    const { data: quoteData, error: quoteError } = await supabase
-      .from("quotes")
-      .insert({
-        company_id: companyId,
-        job_id: job.id,
-        quote_number: `SG-Q-${suffix}`,
-        subtotal: pack.quote.subtotal,
-        tax: pack.quote.tax,
-        total: pack.quote.total,
-        status: "draft",
-      })
-      .select("id")
-      .single();
-    const quote = quoteData as IdRow;
+      await recordOperationalEvent({
+        userId: auth.userId,
+        companyId: auth.companyId,
+        route: "/api/operations/save",
+        action: "save_operations_pack",
+        status: "failed",
+        message: "Database transaction rejected the save.",
+        metadata: { httpStatus, code: error.code },
+      });
 
-    if (quoteError) throw new Error(quoteError.message);
+      if (error.code === "23505") {
+        return NextResponse.json(
+          {
+            connected: true,
+            error: "This quote has already been saved. Refresh saved jobs before saving again.",
+          },
+          { status: 409 },
+        );
+      }
 
-    const { error: quoteItemsError } = await supabase.from("quote_items").insert(
-      pack.quote.items.map((item) => ({
-        quote_id: quote.id,
-        description: item.description,
-        quantity: item.quantity,
-        unit_price: item.unitPrice,
-        total: item.total,
-      })),
-    );
+      if (error.code === "42501") {
+        return NextResponse.json(
+          {
+            connected: true,
+            error: "Create your company profile before saving jobs.",
+          },
+          { status: 403 },
+        );
+      }
 
-    if (quoteItemsError) throw new Error(quoteItemsError.message);
+      if (["22P02", "23502", "23503", "23514"].includes(error.code)) {
+        return NextResponse.json(
+          {
+            connected: true,
+            error: "The job contains invalid or incomplete data. Review it and try again.",
+          },
+          { status: 400 },
+        );
+      }
 
-    const { data: invoiceData, error: invoiceError } = await supabase
-      .from("invoices")
-      .insert({
-        company_id: companyId,
-        job_id: job.id,
-        invoice_number: `SG-I-${suffix}`,
-        total: pack.quote.total,
-        status: "draft",
-        due_date: dueDate(),
-      })
-      .select("id")
-      .single();
-    const invoice = invoiceData as IdRow;
+      throw new Error("Database transaction failed.");
+    }
 
-    if (invoiceError) throw new Error(invoiceError.message);
+    const savedTotals = {
+      subtotal: Number(data.subtotal ?? totals.subtotal),
+      tax: Number(data.tax ?? totals.tax),
+      total: Number(data.total ?? totals.total),
+      vatRegistered: Boolean(data.vatRegistered ?? totals.vatRegistered),
+      vatRate: Number(data.vatRate ?? totals.vatRate),
+    };
 
-    const { error: taskError } = await supabase.from("ai_tasks").insert({
-      company_id: companyId,
-      job_id: job.id,
-      task_type: "job_intake_operations_pack",
-      input: {
-        message: pack.originalMessage,
-        extractionMode: pack.extractionMode,
-      },
-      output: {
-        extractedJob: pack.job,
-        quote: pack.quote,
-        followUpMessage: pack.job.followUpMessage,
-      },
-      status: "completed",
+    await recordPilotEvent(supabase, auth.companyId, auth.userId, "job_saved", {
+      total: savedTotals.total,
+      quoteNumber: data.quoteNumber,
+      invoiceNumber: data.invoiceNumber,
     });
-
-    if (taskError) throw new Error(taskError.message);
+    await recordOperationalEvent({
+      userId: auth.userId,
+      companyId: auth.companyId,
+      route: "/api/operations/save",
+      action: "save_operations_pack",
+      status: "success",
+      message: "Operations pack saved.",
+      metadata: { quoteNumber: data.quoteNumber, invoiceNumber: data.invoiceNumber },
+      persist: false,
+    });
 
     return NextResponse.json({
       connected: true,
-      message: "Operations pack saved.",
-      records: {
-        customerId: customer.id,
-        jobId: job.id,
-        quoteId: quote.id,
-        invoiceId: invoice.id,
-      },
+      message: "Job, quote, and invoice saved together.",
+      records: { ...data, ...savedTotals },
     });
   } catch (error) {
+    await recordOperationalEvent({
+      userId: auth.userId,
+      companyId: auth.companyId,
+      route: "/api/operations/save",
+      action: "save_operations_pack",
+      status: "failed",
+      message: error instanceof Error ? error.message : "Could not save operations pack.",
+      metadata: { httpStatus: 500 },
+    });
     return NextResponse.json(
       {
         connected: true,
